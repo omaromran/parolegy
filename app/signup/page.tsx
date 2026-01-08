@@ -1,16 +1,15 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState, Suspense } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
 import { Header } from "@/components/landing/header"
-import { useSearchParams } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 
-export default function SignupPage() {
+function SignupForm() {
   const router = useRouter()
   const { toast } = useToast()
   const searchParams = useSearchParams()
@@ -176,5 +175,17 @@ export default function SignupPage() {
         </Card>
       </main>
     </div>
+  )
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    }>
+      <SignupForm />
+    </Suspense>
   )
 }

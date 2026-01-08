@@ -6,6 +6,10 @@ export async function generateCampaignBlueprint(
   documents: any[],
   caseData: any
 ): Promise<CampaignBlueprint> {
+  if (!openai) {
+    throw new Error('OpenAI API key is not configured. Please set OPENAI_API_KEY environment variable.')
+  }
+
   const prompt = CAMPAIGN_BLUEPRINT_PROMPT(assessmentData, documents)
 
   const response = await openai.chat.completions.create({
@@ -43,6 +47,10 @@ export async function improveSection(
   currentContent: string,
   concerns: string[]
 ): Promise<string> {
+  if (!openai) {
+    throw new Error('OpenAI API key is not configured. Please set OPENAI_API_KEY environment variable.')
+  }
+
   const { SECTION_IMPROVEMENT_PROMPT } = await import('./prompts')
   const prompt = SECTION_IMPROVEMENT_PROMPT(sectionName, currentContent, concerns)
 
