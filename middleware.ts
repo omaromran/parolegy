@@ -9,16 +9,18 @@ export function middleware(request: NextRequest) {
   // Check if user has already entered the password
   const hasAccess = request.cookies.get(PASSWORD_COOKIE)?.value === 'true'
 
-  // Allow access to password check endpoint
-  if (request.nextUrl.pathname === '/api/check-password') {
+  // Allow access to password page and password check endpoint
+  if (
+    request.nextUrl.pathname === '/password' ||
+    request.nextUrl.pathname === '/api/check-password'
+  ) {
     return NextResponse.next()
   }
 
-  // Allow access to static files and API routes (except auth which needs password first)
+  // Allow access to static files and Next.js internals
   if (
     request.nextUrl.pathname.startsWith('/_next') ||
-    request.nextUrl.pathname.startsWith('/api/auth/check-password') ||
-    request.nextUrl.pathname.startsWith('/api/check-password')
+    request.nextUrl.pathname.startsWith('/favicon.ico')
   ) {
     return NextResponse.next()
   }
