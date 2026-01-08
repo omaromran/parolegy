@@ -1,0 +1,175 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Note: SQLite doesn't support enums, so we use String with default values
+// UserRole: CLIENT, FAMILY, STAFF, ADMIN
+// CaseStatus: DRAFT, INTAKE, ASSESSMENT_IN_PROGRESS, DOCUMENTS_PENDING, AI_DRAFT_READY, TEAM_REVIEW, CLIENT_REVIEW, APPROVED, SUBMITTED, ARCHIVED
+// DocumentType: SUPPORT_LETTER, CERTIFICATE, PHOTO, EMPLOYMENT_PLAN, HOUSING_PLAN, OTHER
+// CampaignStatus: DRAFT, AI_GENERATED, TEAM_EDITED, CLIENT_APPROVED, FINAL
+// MessageStatus: UNREAD, READ, ARCHIVED
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String?
+  name          String?
+  role          String   @default("CLIENT") // CLIENT, FAMILY, STAFF, ADMIN
+  language      String   @default("en")
+  emailVerified DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  cases         Case[]
+  messages      Message[]
+  auditLogs     AuditLog[]
+
+  @@index([email])
+  @@index([role])
+}
+
+model Case {
+  id                    String   @id @default(cuid())
+  userId                String
+  clientName            String
+  tdcjNumber            String
+  unit                  String?
+  paroleEligibilityDate DateTime?
+  nextReviewDate        DateTime?
+  district              String?
+  status                String   @default("DRAFT") // DRAFT, INTAKE, ASSESSMENT_IN_PROGRESS, etc.
+  serviceOption         Int      @default(3) // 1=White-Glove, 2=Hybrid, 3=Self-Serve
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // Relations
+  user                  User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assessmentResponses   AssessmentResponse?
+  documents             Document[]
+  campaigns             Campaign[]
+  reentryGuides         ReentryGuide[]
+  messages              Message[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([tdcjNumber])
+}
+
+model AssessmentResponse {
+  id          String    @id @default(cuid())
+  caseId      String    @unique
+  responses   String    // Structured JSON by section (stored as text)
+  rawData     String?   // Raw form data (stored as text)
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  case        Case      @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@index([caseId])
+}
+
+model Document {
+  id          String   @id @default(cuid())
+  caseId      String
+  type        String   // SUPPORT_LETTER, CERTIFICATE, PHOTO, etc.
+  fileName    String
+  storageKey  String   // S3 key or storage path
+  mimeType    String
+  size        Int      // bytes
+  metadata    String?  // Tags, notes, etc. (stored as JSON text)
+  uploadedBy  String   // User ID
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  case        Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@index([caseId])
+  @@index([type])
+}
+
+model Campaign {
+  id            String   @id @default(cuid())
+  caseId        String
+  version       Int      @default(1)
+  language      String   @default("en")
+  blueprintJson String   // Campaign Blueprint structure (stored as JSON text)
+  renderedPdfUrl String? // URL to final PDF
+  status        String   @default("DRAFT") // DRAFT, AI_GENERATED, TEAM_EDITED, etc.
+  reviewCycle   Int      @default(1) // Which review cycle this is for
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  case          Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@index([caseId])
+  @@index([status])
+  @@unique([caseId, version, reviewCycle])
+}
+
+model ReentryGuide {
+  id            String   @id @default(cuid())
+  caseId        String
+  version       Int      @default(1)
+  language      String   @default("en")
+  renderedPdfUrl String? // URL to final PDF
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  case          Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@index([caseId])
+  @@unique([caseId, version, language])
+}
+
+model Message {
+  id          String   @id @default(cuid())
+  caseId      String
+  fromUserId  String
+  toRole      String?  // If null, goes to all staff (CLIENT, FAMILY, STAFF, ADMIN)
+  body        String
+  attachments String?  // Array of document IDs (stored as JSON text)
+  status      String   @default("UNREAD") // UNREAD, READ, ARCHIVED
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  case        Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  fromUser    User     @relation(fields: [fromUserId], references: [id])
+
+  @@index([caseId])
+  @@index([fromUserId])
+  @@index([status])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String
+  action     String   // e.g., "CREATE_CASE", "UPLOAD_DOCUMENT", "GENERATE_CAMPAIGN"
+  entityType String   // e.g., "Case", "Document", "Campaign"
+  entityId   String?
+  metadata   String?  // Additional context (stored as JSON text)
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  // Relations
+  actor      User     @relation(fields: [actorId], references: [id])
+
+  @@index([actorId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
