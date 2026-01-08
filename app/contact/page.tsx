@@ -36,7 +36,7 @@ export default function ContactPage() {
             Contact Us
           </h1>
           <p className="text-center text-muted-foreground mb-12">
-            Get in touch with our team. We're here to help.
+            Get in touch with our team. We&apos;re here to help.
           </p>
           <div className="grid md:grid-cols-2 gap-8">
             <Card>

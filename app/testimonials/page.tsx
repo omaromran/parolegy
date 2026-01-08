@@ -10,7 +10,7 @@ const testimonials = [
     rating: 5,
   },
   {
-    quote: "The team at Parolegy understood our situation and helped us present our case professionally. We're grateful for their expertise and compassion.",
+    quote: "The team at Parolegy understood our situation and helped us present our case professionally. We&apos;re grateful for their expertise and compassion.",
     author: "Family Member",
     category: "Family",
     rating: 5,
