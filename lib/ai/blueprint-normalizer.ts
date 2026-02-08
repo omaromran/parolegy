@@ -2,16 +2,17 @@ import type { CampaignBlueprint } from './openai'
 
 const empty = (x: unknown): x is undefined | null => x == null
 const arr = (x: unknown): unknown[] => (Array.isArray(x) ? x : [])
+const arrStr = (x: unknown): string[] => arr(x).map((v) => (typeof v === 'string' ? v : String(v)))
 const str = (x: unknown): string => (typeof x === 'string' ? x : '')
 
 /** Ensures blueprint has all fields the PDF expects, with safe defaults. */
 export function normalizeBlueprint(raw: Partial<CampaignBlueprint> | null): CampaignBlueprint {
-  const s = raw?.sections ?? {}
+  const s = (raw?.sections ?? {}) as Record<string, Record<string, unknown>>
   return {
     case_summary: {
       client_name: str(raw?.case_summary?.client_name) || 'Client',
       tdcj_number: str(raw?.case_summary?.tdcj_number) || '—',
-      key_facts: arr(raw?.case_summary?.key_facts),
+      key_facts: arrStr(raw?.case_summary?.key_facts),
     },
     panel_concerns: arr(raw?.panel_concerns).map((p: any) => ({
       concern: str(p?.concern),
@@ -19,9 +20,9 @@ export function normalizeBlueprint(raw: Partial<CampaignBlueprint> | null): Camp
       mitigation: str(p?.mitigation),
     })),
     narrative_strategy: {
-      themes: arr(raw?.narrative_strategy?.themes),
+      themes: arrStr(raw?.narrative_strategy?.themes),
       tone: str(raw?.narrative_strategy?.tone) || 'respectful',
-      do_not_say: arr(raw?.narrative_strategy?.do_not_say),
+      do_not_say: arrStr(raw?.narrative_strategy?.do_not_say),
     },
     sections: {
       cover: {

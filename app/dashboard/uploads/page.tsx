@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { Upload, File, X, Download, ExternalLink, Image } from "lucide-react"
+import { Upload, File as FileIcon, X, Download, ExternalLink, Image as ImageIcon } from "lucide-react"
 
 const documentTypes = [
   { id: "SUPPORT_LETTER", label: "Support Letter", min: 3, max: 10 },
@@ -94,7 +94,7 @@ export default function UploadsPage() {
       .finally(() => setCasesLoading(false))
   }, [])
 
-  const loadDocuments = () => {
+  const loadDocuments = useCallback(() => {
     if (!caseId) return
     setDocumentsLoading(true)
     fetch(`/api/documents?caseId=${encodeURIComponent(caseId)}`)
@@ -102,12 +102,12 @@ export default function UploadsPage() {
       .then((data) => setSavedDocuments(data.documents || []))
       .catch(() => setSavedDocuments([]))
       .finally(() => setDocumentsLoading(false))
-  }
+  }, [caseId])
 
   useEffect(() => {
     if (caseId) loadDocuments()
     else setSavedDocuments([])
-  }, [caseId])
+  }, [caseId, loadDocuments])
 
   const handleFileSelect = (type: string, files: FileList | null) => {
     if (!files) return
@@ -276,9 +276,9 @@ export default function UploadsPage() {
                       >
                         <div className="flex items-center gap-2 min-w-0">
                           {d.mimeType.startsWith("image/") ? (
-                            <Image className="h-4 w-4 shrink-0 text-muted-foreground" />
+                            <ImageIcon className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
                           ) : (
-                            <File className="h-4 w-4 shrink-0 text-muted-foreground" />
+                            <FileIcon className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
                           )}
                           <span className="text-sm truncate">{d.fileName}</span>
                           <span className="text-xs text-muted-foreground shrink-0">
@@ -355,7 +355,7 @@ export default function UploadsPage() {
                               className="flex items-center justify-between p-2 bg-muted rounded"
                             >
                               <div className="flex items-center gap-2">
-                                <File className="h-4 w-4" />
+                                <FileIcon className="h-4 w-4" />
                                 <span className="text-sm">{file.name}</span>
                                 <span className="text-xs text-muted-foreground">
                                   ({(file.size / 1024).toFixed(1)} KB)
