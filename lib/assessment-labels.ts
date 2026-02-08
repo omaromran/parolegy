@@ -1,0 +1,58 @@
+// Section and question labels for displaying assessment responses (e.g. in admin)
+export const ASSESSMENT_SECTIONS: { id: string; title: string; questionIds: string[] }[] = [
+  { id: "status", title: "Status & Eligibility", questionIds: ["tdcj_number", "unit", "parole_eligibility_date", "next_review_date", "district"] },
+  { id: "disciplinary", title: "Disciplinary Record", questionIds: ["disciplinary_history", "last_disciplinary"] },
+  { id: "gang", title: "Gang Affiliation", questionIds: ["gang_affiliation", "gang_details"] },
+  { id: "education", title: "Education", questionIds: ["education_level", "certificates"] },
+  { id: "employment", title: "Employment History & Plans", questionIds: ["employment_history", "employment_plan", "employer_contact"] },
+  { id: "medical", title: "Medical & Mental Health", questionIds: ["medical_conditions", "mental_health", "treatment_plan"] },
+  { id: "family", title: "Family & Support Network", questionIds: ["family_support", "children", "support_letters_count"] },
+  { id: "juvenile", title: "Juvenile History", questionIds: ["juvenile_history"] },
+  { id: "adult", title: "Adult Criminal History", questionIds: ["offense_details", "prior_offenses", "remorse"] },
+  { id: "substance", title: "Substance Use", questionIds: ["substance_history", "treatment_history", "sobriety_plan"] },
+  { id: "housing", title: "Housing Plan", questionIds: ["housing_address", "housing_stability"] },
+  { id: "transportation", title: "Transportation Plan", questionIds: ["transportation_plan"] },
+  { id: "why", title: "Why Factors", questionIds: ["why_parole", "why_now", "public_safety"] },
+  { id: "additional", title: "Additional Notes", questionIds: ["additional_info"] },
+]
+
+const LABELS: Record<string, string> = {
+  tdcj_number: "TDCJ Number",
+  unit: "Current Unit",
+  parole_eligibility_date: "Parole Eligibility Date",
+  next_review_date: "Next Review Date",
+  district: "Parole District",
+  disciplinary_history: "Disciplinary record",
+  last_disciplinary: "Date of last disciplinary action",
+  gang_affiliation: "Gang involvement",
+  gang_details: "Gang details (if yes)",
+  education_level: "Highest Education Level",
+  certificates: "Certificates / training",
+  employment_history: "Employment history",
+  employment_plan: "Employment plan upon release",
+  employer_contact: "Potential employer contact",
+  medical_conditions: "Medical conditions",
+  mental_health: "Mental health history",
+  treatment_plan: "Post-release treatment plan",
+  family_support: "Family support network",
+  children: "Information about children",
+  support_letters_count: "Number of support letters",
+  juvenile_history: "Juvenile criminal history",
+  offense_details: "Current offense details",
+  prior_offenses: "Prior offenses",
+  remorse: "Reflection on actions and impact",
+  substance_history: "Substance use history",
+  treatment_history: "Treatment history",
+  sobriety_plan: "Sobriety maintenance plan",
+  housing_address: "Release address",
+  housing_stability: "Housing stability factors",
+  transportation_plan: "Transportation plan",
+  why_parole: "Why should you be granted parole?",
+  why_now: "Why now?",
+  public_safety: "How will you ensure public safety?",
+  additional_info: "Additional information",
+}
+
+export function getQuestionLabel(id: string): string {
+  return LABELS[id] || id.replace(/_/g, " ")
+}

@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, Suspense } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -129,13 +130,80 @@ const sections = [
   },
 ]
 
-export default function AssessmentPage() {
+// Test data to prefill the entire assessment for quick testing
+const TEST_DATA: Record<string, string | number> = {
+  tdcj_number: "12345678",
+  unit: "Clemens Unit",
+  parole_eligibility_date: "2026-06-15",
+  next_review_date: "2026-03-01",
+  district: "District 3",
+  disciplinary_history: "No major disciplinary infractions. One minor write-up in 2023 for being out of place, resolved with counseling.",
+  last_disciplinary: "2023-08-12",
+  gang_affiliation: "No",
+  gang_details: "",
+  education_level: "High School/GED",
+  certificates: "HVAC certification (in progress), GED completed 2022.",
+  employment_history: "Worked in construction and warehouse roles before incarceration. Completed vocational training in facility.",
+  employment_plan: "Plan to re-enter construction or warehouse work. Have applied to re-entry program with local employer.",
+  employer_contact: "John Smith, ABC Construction, (555) 123-4567",
+  medical_conditions: "None requiring ongoing treatment.",
+  mental_health: "Participated in counseling programs. No current diagnosis requiring medication.",
+  treatment_plan: "Will continue counseling through community program if recommended.",
+  family_support: "Strong support from mother and two siblings. Weekly phone calls and visits when possible.",
+  children: "Two children, ages 8 and 12. Maintain contact through letters and scheduled calls.",
+  support_letters_count: "5",
+  juvenile_history: "None.",
+  offense_details: "Non-violent offense. Full details provided in court records. Have taken responsibility.",
+  prior_offenses: "One prior conviction from 2015, completed sentence and parole successfully.",
+  remorse: "I deeply regret my actions and the harm caused. I have used my time to change and prepare for a productive return to society.",
+  substance_history: "Past substance use. Completed treatment program in 2024.",
+  treatment_history: "Completed 6-month in-facility substance abuse program.",
+  sobriety_plan: "AA/NA meetings upon release, sponsor contact, avoid high-risk situations.",
+  housing_address: "123 Main St, Houston, TX (mother's residence)",
+  housing_stability: "Stable housing with family. Written agreement for 6 months post-release.",
+  transportation_plan: "Family will provide rides initially. Plan to save for vehicle or use bus pass program.",
+  why_parole: "I have completed programs, maintained good conduct, and have a solid release plan. I am committed to being a productive citizen.",
+  why_now: "I have met all program requirements and have strong community and family support in place.",
+  public_safety: "Stable housing, employment plan, no gang ties, ongoing support network and willingness to comply with all conditions.",
+  additional_info: "Test data – filled for assessment testing.",
+}
+
+function AssessmentPageInner() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const caseId = searchParams.get("caseId")
+
   const [currentSection, setCurrentSection] = useState(0)
   const [responses, setResponses] = useState<Record<string, any>>({})
   const [isSaving, setIsSaving] = useState(false)
+  const [isLoadingAssessment, setIsLoadingAssessment] = useState(!!caseId)
+
+  useEffect(() => {
+    if (!caseId) {
+      setIsLoadingAssessment(false)
+      return
+    }
+    let cancelled = false
+    fetch(`/api/assessment?caseId=${encodeURIComponent(caseId)}`)
+      .then((res) => (res.ok ? res.json() : { responses: {} }))
+      .then((data) => {
+        if (!cancelled && data.responses && typeof data.responses === "object") {
+          setResponses(data.responses)
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setIsLoadingAssessment(false)
+      })
+    return () => { cancelled = true }
+  }, [caseId])
 
   const handleInputChange = (questionId: string, value: any) => {
     setResponses({ ...responses, [questionId]: value })
+  }
+
+  const handlePrefillTestData = () => {
+    setResponses({ ...TEST_DATA } as Record<string, any>)
   }
 
   const handleSave = async () => {
@@ -158,7 +226,56 @@ export default function AssessmentPage() {
     }
   }
 
+  const allRequiredFilled = () => {
+    for (const section of sections) {
+      for (const q of section.questions) {
+        if (q.required) {
+          const val = responses[q.id]
+          if (val === undefined || val === null || String(val).trim() === "") return false
+        }
+      }
+    }
+    return true
+  }
+
+  const isLastSection = currentSection === sections.length - 1
+  const canComplete = isLastSection && allRequiredFilled()
+
+  const handleComplete = async () => {
+    if (!isLastSection) {
+      handleNext()
+      return
+    }
+    setIsSaving(true)
+    try {
+      const res = await fetch("/api/assessment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...(caseId ? { caseId } : {}),
+          responses,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Failed to save")
+      router.push("/dashboard")
+      return
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Failed to save assessment.")
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
   const currentSectionData = sections[currentSection]
+
+  if (isLoadingAssessment) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Loading assessment...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -186,6 +303,17 @@ export default function AssessmentPage() {
                 className="h-full bg-primary transition-all"
                 style={{ width: `${((currentSection + 1) / sections.length) * 100}%` }}
               />
+            </div>
+            <div className="mt-4">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handlePrefillTestData}
+                className="text-muted-foreground"
+              >
+                Fill with test data
+              </Button>
             </div>
           </div>
 
@@ -245,13 +373,24 @@ export default function AssessmentPage() {
               <Button variant="outline" onClick={handleSave} disabled={isSaving}>
                 {isSaving ? "Saving..." : "Save Progress"}
               </Button>
-              <Button onClick={handleNext} disabled={currentSection === sections.length - 1}>
-                {currentSection === sections.length - 1 ? "Complete" : "Next"}
+              <Button
+                onClick={handleComplete}
+                disabled={isLastSection ? !canComplete : false}
+              >
+                {isLastSection ? "Complete" : "Next"}
               </Button>
             </div>
           </div>
         </div>
       </main>
     </div>
+  )
+}
+
+export default function AssessmentPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center"><p className="text-muted-foreground">Loading...</p></div>}>
+      <AssessmentPageInner />
+    </Suspense>
   )
 }

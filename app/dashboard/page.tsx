@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -8,16 +8,6 @@ import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { formatDateShort } from "@/lib/utils"
 import { useAuth } from "@/hooks/use-auth"
-
-// Mock data - replace with real data fetching
-const mockCase = {
-  id: "1",
-  clientName: "John Doe",
-  tdcjNumber: "1234567",
-  status: "ASSESSMENT_IN_PROGRESS",
-  nextReviewDate: new Date("2025-12-01"),
-  serviceOption: 3,
-}
 
 const statusLabels: Record<string, string> = {
   DRAFT: "Draft",
@@ -32,15 +22,47 @@ const statusLabels: Record<string, string> = {
   ARCHIVED: "Archived",
 }
 
+type CaseWithAssessment = {
+  id: string
+  clientName: string
+  tdcjNumber: string
+  unit: string | null
+  status: string
+  serviceOption?: number
+  createdAt: string
+  updatedAt: string
+  assessment: {
+    id: string
+    completedAt: string | null
+    updatedAt: string
+  } | null
+  documentCounts?: Record<string, number>
+  meetsRequiredDocuments?: boolean
+  hasCampaigns?: boolean
+}
+
 export default function DashboardPage() {
   const router = useRouter()
   const { user, isLoading, logout } = useAuth()
+  const [cases, setCases] = useState<CaseWithAssessment[]>([])
+  const [casesLoading, setCasesLoading] = useState(true)
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push('/login')
+      router.push("/login")
     }
   }, [user, isLoading, router])
+
+  useEffect(() => {
+    if (!user) return
+    fetch("/api/cases")
+      .then((res) => (res.ok ? res.json() : { cases: [] }))
+      .then((data) => {
+        setCases(data.cases || [])
+      })
+      .catch(() => setCases([]))
+      .finally(() => setCasesLoading(false))
+  }, [user])
 
   if (isLoading) {
     return (
@@ -53,6 +75,10 @@ export default function DashboardPage() {
   if (!user) {
     return null
   }
+
+  const submissions = cases.filter((c) => c.assessment?.completedAt)
+  const hasRequiredDocuments = cases.some((c) => c.meetsRequiredDocuments === true)
+  const hasCampaign = cases.some((c) => c.hasCampaigns === true)
 
   return (
     <div className="min-h-screen bg-background">
@@ -76,63 +102,122 @@ export default function DashboardPage() {
       </header>
       <main className="container py-8">
         <h1 className="font-serif text-3xl font-bold mb-8">Dashboard</h1>
-        
-        <div className="grid gap-6 mb-8">
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle>{mockCase.clientName}</CardTitle>
-                  <CardDescription>TDCJ #{mockCase.tdcjNumber}</CardDescription>
-                </div>
-                <Badge>{statusLabels[mockCase.status]}</Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Next Review Date</p>
-                  <p className="font-medium">{formatDateShort(mockCase.nextReviewDate)}</p>
-                </div>
-                <div className="flex gap-4">
-                  <Button asChild>
-                    <Link href="/dashboard/assessment">Continue Assessment</Link>
-                  </Button>
-                  <Button variant="outline" asChild>
-                    <Link href="/dashboard/uploads">Upload Documents</Link>
-                  </Button>
-                </div>
-              </div>
+
+        {casesLoading ? (
+          <Card className="mb-8">
+            <CardContent className="py-8">
+              <p className="text-muted-foreground">Loading...</p>
             </CardContent>
           </Card>
-        </div>
+        ) : cases.length === 0 ? (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle>Get started</CardTitle>
+              <CardDescription>
+                Complete your first assessment to create a case and build your parole campaign.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild>
+                <Link href="/dashboard/assessment">Start assessment</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="text-lg">My submissions</CardTitle>
+              <CardDescription>
+                Your cases. Edit and click Complete to re-submit. Upload documents when ready.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-4">
+                {cases.map((c) => (
+                  <li
+                    key={c.id}
+                    className="flex flex-wrap items-center justify-between gap-4 rounded-lg border p-4"
+                  >
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="font-medium">{c.clientName}</p>
+                        <Badge>{statusLabels[c.status] || c.status}</Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        TDCJ #{c.tdcjNumber}
+                        {c.unit && ` · ${c.unit}`}
+                      </p>
+                      {c.assessment?.completedAt && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Completed {formatDateShort(c.assessment.completedAt)}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex gap-2 flex-wrap">
+                      <Button asChild variant="outline" size="sm">
+                        <Link href={`/dashboard/assessment?caseId=${c.id}`}>
+                          {c.assessment?.completedAt ? "Edit" : "Continue assessment"}
+                        </Link>
+                      </Button>
+                      {c.assessment?.completedAt && (
+                        <Button asChild size="sm">
+                          <Link href={`/dashboard/assessment?caseId=${c.id}`}>
+                            Re-submit
+                          </Link>
+                        </Button>
+                      )}
+                      <Button asChild variant="outline" size="sm">
+                        <Link href="/dashboard/uploads">Upload documents</Link>
+                      </Button>
+                      {c.serviceOption === 3 && c.assessment?.completedAt && c.meetsRequiredDocuments && (
+                        <Button asChild size="sm">
+                          <Link href="/dashboard/campaign">Generate campaign</Link>
+                        </Button>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        )}
 
         <div className="grid md:grid-cols-3 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Progress Checklist</CardTitle>
+              <CardTitle className="text-lg">Progress checklist</CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">
                 <li className="flex items-center gap-2">
                   <span className="text-green-500">✓</span>
-                  <span className="text-sm">Account Created</span>
+                  <span className="text-sm">Account created</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-green-500">✓</span>
-                  <span className="text-sm">Case Created</span>
+                  <span className={cases.length > 0 ? "text-green-500" : "text-gray-400"}>
+                    {cases.length > 0 ? "✓" : "○"}
+                  </span>
+                  <span className="text-sm">Case created</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-yellow-500">○</span>
-                  <span className="text-sm">Assessment (In Progress)</span>
+                  <span className={submissions.length > 0 ? "text-green-500" : "text-yellow-500"}>
+                    {submissions.length > 0 ? "✓" : "○"}
+                  </span>
+                  <span className="text-sm">Assessment {submissions.length > 0 ? "completed" : "in progress"}</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-gray-400">○</span>
-                  <span className="text-sm">Documents Uploaded</span>
+                  <span className={hasRequiredDocuments ? "text-green-500" : "text-gray-400"}>
+                    {hasRequiredDocuments ? "✓" : "○"}
+                  </span>
+                  <span className="text-sm">
+                    Documents uploaded {hasRequiredDocuments ? "(3+ letters, 10+ photos)" : "(min 3 support letters, 10 photos)"}
+                  </span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-gray-400">○</span>
-                  <span className="text-sm">Campaign Generated</span>
+                  <span className={hasCampaign ? "text-green-500" : "text-gray-400"}>
+                    {hasCampaign ? "✓" : "○"}
+                  </span>
+                  <span className="text-sm">Campaign generated</span>
                 </li>
               </ul>
             </CardContent>
@@ -140,36 +225,31 @@ export default function DashboardPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Quick Actions</CardTitle>
+              <CardTitle className="text-lg">Quick actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               <Button variant="outline" className="w-full justify-start" asChild>
-                <Link href="/dashboard/assessment">Complete Assessment</Link>
+                <Link href="/dashboard/assessment">Complete assessment</Link>
               </Button>
               <Button variant="outline" className="w-full justify-start" asChild>
-                <Link href="/dashboard/uploads">Upload Documents</Link>
+                <Link href="/dashboard/uploads">Upload documents</Link>
               </Button>
               <Button variant="outline" className="w-full justify-start" asChild>
-                <Link href="/dashboard/campaign">View Campaign</Link>
-              </Button>
-              <Button variant="outline" className="w-full justify-start" asChild>
-                <Link href="/dashboard/messages">Messages</Link>
+                <Link href="/dashboard/campaign">View campaign</Link>
               </Button>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Service Option</CardTitle>
+              <CardTitle className="text-lg">Service option</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-4">
-                {mockCase.serviceOption === 1 && "White-Glove \"Done For You\""}
-                {mockCase.serviceOption === 2 && "Hybrid \"Self-Serve + Consultation\""}
-                {mockCase.serviceOption === 3 && "Self-Serve \"AI Campaign Generator\""}
+                Self-serve — AI campaign generator
               </p>
-              <Button variant="outline" size="sm">
-                Change Option
+              <Button variant="outline" size="sm" disabled>
+                Change option
               </Button>
             </CardContent>
           </Card>

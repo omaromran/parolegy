@@ -24,22 +24,50 @@ CRITICAL RULES:
 Your goal is to help present the truth in the most compelling, structured way possible while maintaining complete honesty and accuracy.`
 
 export const CAMPAIGN_BLUEPRINT_PROMPT = (assessmentData: any, documents: any[]) => `
-Analyze the following case information and generate a comprehensive Campaign Blueprint.
+You are an expert parole campaign writer. Generate a complete Campaign Blueprint as a single JSON object. Use ONLY the assessment data and document list below. Do not fabricate facts. Be truthful, concise, and focused on accountability, public safety, and concrete reentry plans. Panel members spend 7–10 minutes per case.
 
 ASSESSMENT DATA:
 ${JSON.stringify(assessmentData, null, 2)}
 
-AVAILABLE DOCUMENTS:
-${JSON.stringify(documents.map(d => ({ type: d.type, fileName: d.fileName })), null, 2)}
+AVAILABLE DOCUMENTS (use these types and file names when citing):
+${JSON.stringify(documents.map(d => ({ type: d.type, fileName: d.fileName, id: d.id })), null, 2)}
 
-Generate a Campaign Blueprint that:
-1. Identifies likely panel concerns based on the case facts
-2. Develops a narrative strategy that addresses those concerns
-3. Structures all campaign sections with truthful, compelling content
-4. Cites specific user uploads where relevant
-5. Flags any missing information that should be addressed
+Return a JSON object with this exact structure (fill every field from the assessment; use empty arrays/strings where no data):
 
-Remember: Be truthful, concise, and focused on accountability, public safety, and concrete reentry plans.
+{
+  "case_summary": {
+    "client_name": "string from assessment",
+    "tdcj_number": "string from assessment",
+    "key_facts": ["array of 3–6 factual bullets from assessment"]
+  },
+  "panel_concerns": [
+    { "concern": "likely panel concern", "evidence": "fact from case", "mitigation": "how client addresses it" }
+  ],
+  "narrative_strategy": {
+    "themes": ["accountability", "reentry plan", "support network", etc.],
+    "tone": "respectful, humble, non-defensive",
+    "do_not_say": ["phrases to avoid"]
+  },
+  "sections": {
+    "cover": { "tagline": "short compelling line", "client_photo_available": true/false },
+    "toc": ["Synopsis", "Client Letter", "Strengths", "30/90/180 Plan", "Home Plan", "Transportation", "Employment", "Future", "Support Letters", "Closing"],
+    "synopsis": { "title": "Executive Summary", "paragraphs": ["2–3 short paragraphs"] },
+    "client_letter": { "salutation": "Dear Members of the Board", "paragraphs": ["remorse", "plans", "commitment"], "closing": "Respectfully," },
+    "strengths": { "bullets": ["strengths from assessment"] },
+    "plan_30_90_180": { "plan_30": ["first 30 days"], "plan_90": ["first 90 days"], "plan_180": ["first 180 days"] },
+    "home_plan": { "address": "if in assessment", "description": "text", "stability_factors": ["array"] },
+    "transportation": { "description": "text", "details": ["array"] },
+    "employment": { "history": ["array"], "opportunities": ["array"], "plan": ["array"] },
+    "future": { "goals": ["array"], "commitments": ["array"] },
+    "support_letters": { "supporters": [{ "name": "", "relationship": "", "summary": "" }], "letters": [{ "id": "doc ref", "improved_text": "optional" }] },
+    "treatment_plan": { "description": "", "commitments": [] },
+    "closing": { "paragraphs": ["thank you", "commitment to comply"] }
+  },
+  "citations_to_user_uploads": [{ "section": "section name", "doc_id": "document id or fileName", "reason": "why cited" }],
+  "compliance_checks": { "truthfulness_confirmed": true, "missing_info": ["any gaps"] }
+}
+
+Output only valid JSON, no markdown or extra text.
 `
 
 export const CLIENT_LETTER_PROMPT = (caseData: any, concerns: string[]) => `

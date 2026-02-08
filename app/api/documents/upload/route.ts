@@ -1,35 +1,62 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getCurrentUser } from '@/lib/auth-api'
 import { db } from '@/lib/db'
+import { writeFile, mkdir } from 'fs/promises'
+import path from 'path'
 
-// This is a placeholder API route - implement full authentication, validation, and S3 upload
+const UPLOADS_DIR = path.join(process.cwd(), 'uploads')
+
 export async function POST(request: NextRequest) {
+  const user = await getCurrentUser(request)
+  if (!user) {
+    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+  }
+
   try {
     const formData = await request.formData()
     const file = formData.get('file') as File
     const caseId = formData.get('caseId') as string
     const type = formData.get('type') as string
-    const uploadedBy = formData.get('uploadedBy') as string
 
-    if (!file || !caseId || !type || !uploadedBy) {
+    if (!file || !caseId || !type) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Missing required fields: file, caseId, type' },
         { status: 400 }
       )
     }
 
-    // TODO: Upload file to S3/storage
-    // const storageKey = await uploadToS3(file, caseId)
+    const allowedTypes = ['SUPPORT_LETTER', 'PHOTO', 'CERTIFICATE', 'EMPLOYMENT_PLAN', 'HOUSING_PLAN', 'OTHER']
+    if (!allowedTypes.includes(type)) {
+      return NextResponse.json({ error: 'Invalid document type' }, { status: 400 })
+    }
 
-    // For now, create a placeholder document record
+    // Verify case belongs to user
+    const caseRecord = await db.case.findFirst({
+      where: { id: caseId, userId: user.id },
+    })
+    if (!caseRecord) {
+      return NextResponse.json({ error: 'Case not found' }, { status: 404 })
+    }
+
+    const bytes = Buffer.from(await file.arrayBuffer())
+    const ext = path.extname(file.name) || '.bin'
+    const safeName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`
+    const caseDir = path.join(UPLOADS_DIR, caseId)
+    await mkdir(caseDir, { recursive: true })
+    const filePath = path.join(caseDir, safeName)
+    await writeFile(filePath, bytes)
+
+    const storageKey = `uploads/${caseId}/${safeName}`
+
     const document = await db.document.create({
       data: {
         caseId,
-        type: type as any,
+        type,
         fileName: file.name,
-        storageKey: `placeholder/${caseId}/${file.name}`, // Replace with actual S3 key
-        mimeType: file.type,
+        storageKey,
+        mimeType: file.type || 'application/octet-stream',
         size: file.size,
-        uploadedBy,
+        uploadedBy: user.id,
       },
     })
 

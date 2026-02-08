@@ -7,7 +7,8 @@
 Make sure you have a `.env` file with your database connection:
 
 ```env
-DATABASE_URL="postgresql://user:password@localhost:5432/parolegy"
+# PostgreSQL – get a free URL from https://neon.tech or https://supabase.com
+DATABASE_URL="postgresql://USER:PASSWORD@HOST/DATABASE?sslmode=require"
 NEXTAUTH_SECRET="your-secret-key-here-change-in-production"
 ```
 

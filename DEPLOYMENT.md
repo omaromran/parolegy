@@ -1,50 +1,85 @@
 # Deployment Guide
 
-## Password Protection
+## 1. Create a PostgreSQL database (required for app + production)
 
-The site is password protected with the password: `angel123@`
+The app uses **PostgreSQL**. Use a free hosted DB for local and production:
 
-Users will be prompted to enter this password when they first visit the site. The password is stored in a cookie for 30 days.
+- **[Neon](https://neon.tech)** – sign up, create a project, copy the connection string.
+- **[Supabase](https://supabase.com)** – create a project → Settings → Database → Connection string (URI).
 
-To change the password, update the `SITE_PASSWORD` environment variable.
+You’ll get a URL like:
+`postgresql://user:password@host/database?sslmode=require`
 
-## Environment Variables
+## 2. Set environment variables (local and production)
 
-Required environment variables:
+### Local (`.env` or `.env.local`)
 
 ```env
-DATABASE_URL="file:./dev.db"  # For SQLite, or PostgreSQL connection string
-NEXTAUTH_SECRET="your-secret-key"  # Generate with: openssl rand -base64 32
-SITE_PASSWORD="angel123@"
+DATABASE_URL="postgresql://USER:PASSWORD@HOST/DATABASE?sslmode=require"
+NEXTAUTH_SECRET="your-secret-key"   # Generate: openssl rand -base64 32
+OPENAI_API_KEY="sk-..."             # For campaign generation
+# Optional:
+# SITE_PASSWORD="angel123@"
 ```
 
-## GitHub Repository
+### Production (Vercel / Railway / Render / etc.)
 
-The code has been pushed to: https://github.com/omaromran/parolegy
+In your hosting dashboard → **Project** → **Settings** → **Environment Variables**, add:
 
-## Admin Credentials
+| Name | Value |
+|------|--------|
+| `DATABASE_URL` | Your Postgres URL (same as above or a separate prod DB) |
+| `NEXTAUTH_SECRET` | `openssl rand -base64 32` (use a new one for prod) |
+| `OPENAI_API_KEY` | Your OpenAI key (for campaign generation) |
+| `SITE_PASSWORD` | Optional site gate password |
+
+Save and **redeploy** so the new variables are used.
+
+## 3. Run database setup
+
+**Local (first time):**
+
+```bash
+npm install
+cp .env.example .env
+# Edit .env and set DATABASE_URL (and others)
+npx prisma generate
+npx prisma db push
+npm run create-admin
+npm run dev
+```
+
+**Production:**  
+Your host usually runs `prisma generate` in the build. Run migrations once against the production DB:
+
+```bash
+DATABASE_URL="your-production-postgres-url" npx prisma db push
+```
+
+Or add a build script that runs `prisma generate` and, if you use migrations, `prisma migrate deploy`.
+
+## 4. Password protection (optional)
+
+Default site password: `angel123@` (set via `SITE_PASSWORD`). Change it in production.
+
+## 5. Admin credentials
 
 - Email: `admin@parolegy.com`
 - Password: `admin123`
 
-⚠️ **IMPORTANT:** Change these credentials in production!
+Create with: `npm run create-admin`  
+⚠️ Change the password in production.
 
-## Setup Instructions
+## 6. GitHub
 
-1. Clone the repository
-2. Install dependencies: `npm install`
-3. Copy `.env.example` to `.env` and update values
-4. Run database setup: `npm run db:push`
-5. Create admin account: `npm run create-admin`
-6. Start server: `npm run dev`
+Repo: https://github.com/omaromran/parolegy
 
-## Production Deployment
+## 7. Production checklist
 
-For production:
-1. Use PostgreSQL instead of SQLite
-2. Update `DATABASE_URL` in environment variables
-3. Change `prisma/schema.prisma` provider back to `postgresql`
-4. Generate secure `NEXTAUTH_SECRET`
-5. Change admin password
-6. Change site password if needed
-7. Set up proper file storage (S3)
+- [ ] `DATABASE_URL` set in hosting env (Postgres)
+- [ ] `NEXTAUTH_SECRET` set in hosting env
+- [ ] `OPENAI_API_KEY` set if using campaign generation
+- [ ] Ran `prisma db push` (or migrations) against production DB
+- [ ] Admin password changed
+- [ ] Site password (`SITE_PASSWORD`) changed if used
+- [ ] File storage (e.g. S3) if you need persistent uploads

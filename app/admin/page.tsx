@@ -162,11 +162,8 @@ export default function AdminPage() {
                     </div>
                   </div>
                   <div className="flex gap-4">
-                    <Button variant="outline" asChild>
-                      <Link href={`/admin/cases/${caseItem.id}`}>View Details</Link>
-                    </Button>
-                    <Button variant="outline" asChild>
-                      <Link href={`/admin/cases/${caseItem.id}/review`}>Review</Link>
+                    <Button asChild>
+                      <Link href={`/admin/cases/${caseItem.id}`}>View details</Link>
                     </Button>
                   </div>
                 </CardContent>
