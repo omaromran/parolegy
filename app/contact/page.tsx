@@ -128,7 +128,7 @@ export default function ContactPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Interested in our White-Glove or Hybrid service options? Schedule a call with our team.
+                    Want to talk through how Parolegy works for your case? Schedule a call with our team.
                   </p>
                   <Button className="w-full" asChild>
                     <a href="mailto:ebonie@parolegy.com?subject=Consultation Request">

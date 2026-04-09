@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, Suspense } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -9,12 +9,10 @@ import Link from "next/link"
 import { Header } from "@/components/landing/header"
 import { useToast } from "@/hooks/use-toast"
 
-function SignupForm() {
+export default function SignupPage() {
   const router = useRouter()
   const { toast } = useToast()
-  const searchParams = useSearchParams()
-  const serviceOption = searchParams.get('option') || '3'
-  
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -67,11 +65,10 @@ function SignupForm() {
 
       toast({
         title: "Success",
-        description: "Account created successfully! Please log in.",
+        description: "Account created. You can complete your assessment and uploads next.",
       })
 
-      // Redirect to login
-      router.push('/login')
+      router.push("/dashboard")
     } catch (error: any) {
       toast({
         title: "Error",
@@ -175,17 +172,5 @@ function SignupForm() {
         </Card>
       </main>
     </div>
-  )
-}
-
-export default function SignupPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <p>Loading...</p>
-      </div>
-    }>
-      <SignupForm />
-    </Suspense>
   )
 }

@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireRole } from '@/lib/middleware'
 import { db } from '@/lib/db'
+import { resolveCaseRouteId } from '@/lib/route-params'
 
 export const GET = requireRole(['ADMIN', 'STAFF'])(
-  async (req: NextRequest, user: { userId: string }) => {
+  async (
+    req: NextRequest,
+    _user: { userId: string },
+    context?: { params?: { id?: string } | Promise<{ id?: string }> }
+  ) => {
     try {
-      const pathname = req.nextUrl.pathname
-      const id = pathname.split('/').filter(Boolean).pop()
+      const id = await resolveCaseRouteId(req, context)
       if (!id) {
         return NextResponse.json({ error: 'Case ID required' }, { status: 400 })
       }
@@ -16,6 +20,31 @@ export const GET = requireRole(['ADMIN', 'STAFF'])(
         include: {
           user: { select: { id: true, name: true, email: true } },
           assessmentResponses: true,
+          campaigns: {
+            orderBy: { createdAt: 'desc' },
+            select: {
+              id: true,
+              version: true,
+              language: true,
+              status: true,
+              reviewCycle: true,
+              createdAt: true,
+              renderedPdfUrl: true,
+              narrativeJson: true,
+              publishedToClient: true,
+            },
+          },
+          documents: {
+            orderBy: { createdAt: 'desc' },
+            select: {
+              id: true,
+              type: true,
+              fileName: true,
+              mimeType: true,
+              size: true,
+              createdAt: true,
+            },
+          },
         },
       })
 
@@ -32,6 +61,28 @@ export const GET = requireRole(['ADMIN', 'STAFF'])(
         }
       }
 
+      const campaigns = caseRecord.campaigns.map((c) => {
+        let narrative: unknown = null
+        if (c.narrativeJson) {
+          try {
+            narrative = JSON.parse(c.narrativeJson)
+          } catch {
+            narrative = null
+          }
+        }
+        return {
+          id: c.id,
+          version: c.version,
+          language: c.language,
+          status: c.status,
+          reviewCycle: c.reviewCycle,
+          createdAt: c.createdAt,
+          renderedPdfUrl: c.renderedPdfUrl,
+          publishedToClient: c.publishedToClient,
+          narrative,
+        }
+      })
+
       return NextResponse.json({
         case: {
           id: caseRecord.id,
@@ -42,7 +93,6 @@ export const GET = requireRole(['ADMIN', 'STAFF'])(
           paroleEligibilityDate: caseRecord.paroleEligibilityDate,
           nextReviewDate: caseRecord.nextReviewDate,
           status: caseRecord.status,
-          serviceOption: caseRecord.serviceOption,
           createdAt: caseRecord.createdAt,
           updatedAt: caseRecord.updatedAt,
           user: caseRecord.user,
@@ -54,14 +104,15 @@ export const GET = requireRole(['ADMIN', 'STAFF'])(
                 responses,
               }
             : null,
+          campaigns,
+          documents: caseRecord.documents,
         },
       })
     } catch (error) {
       console.error('Error fetching case:', error)
-      return NextResponse.json(
-        { error: 'Failed to fetch case' },
-        { status: 500 }
-      )
+      const message =
+        error instanceof Error ? error.message : 'Failed to fetch case'
+      return NextResponse.json({ error: message }, { status: 500 })
     }
   }
 )
@@ -72,10 +123,13 @@ const VALID_STATUSES = [
 ]
 
 export const PATCH = requireRole(['ADMIN', 'STAFF'])(
-  async (req: NextRequest) => {
+  async (
+    req: NextRequest,
+    _user: { userId: string },
+    context?: { params?: { id?: string } | Promise<{ id?: string }> }
+  ) => {
     try {
-      const pathname = req.nextUrl.pathname
-      const id = pathname.split('/').filter(Boolean).pop()
+      const id = await resolveCaseRouteId(req, context)
       if (!id) {
         return NextResponse.json({ error: 'Case ID required' }, { status: 400 })
       }

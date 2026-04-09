@@ -1,0 +1,4 @@
+full_name,facility,facility_address,city,state,zip_code,inmate_id,source_state,projected_release_date,offense
+A J SMITH,IN TRANSIT,Federal Bureau of Prisons — inmate mail via institution address on BOP.gov,Washington,DC,20534,08685-076,FBOP,,
+B F SMITH,SAN ANTONIO (CSA),Federal Bureau of Prisons — inmate mail via institution address on BOP.gov,Washington,DC,20534,06168-035,FBOP,1986-08-22,
+B E SMITH,Sacramento (CSC),Federal Bureau of Prisons — inmate mail via institution address on BOP.gov,Washington,DC,20534,11691-097,FBOP,2001-05-04,

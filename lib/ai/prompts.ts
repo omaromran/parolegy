@@ -23,8 +23,17 @@ CRITICAL RULES:
 
 Your goal is to help present the truth in the most compelling, structured way possible while maintaining complete honesty and accuracy.`
 
-export const CAMPAIGN_BLUEPRINT_PROMPT = (assessmentData: any, documents: any[]) => `
+export const CAMPAIGN_BLUEPRINT_PROMPT = (
+  assessmentData: any,
+  documents: any[],
+  knowledgeHubContext?: string
+) => `
 You are an expert parole campaign writer. Generate a complete Campaign Blueprint as a single JSON object. Use ONLY the assessment data and document list below. Do not fabricate facts. Be truthful, concise, and focused on accountability, public safety, and concrete reentry plans. Panel members spend 7–10 minutes per case.
+
+Conflict resolution: If anything below disagrees with the Knowledge Hub (including the "MANDATORY: APPLY EACH STRUCTURE SECTION" mapping), the Knowledge Hub wins. The generic JSON schema is a shape guide; section content, tone, and emphasis must implement the Parole campaign structure entries and LLM guidelines.
+
+PAROLEGY KNOWLEDGE HUB (authoritative — follow this structure and guidance when filling the JSON; align tone, section purposes, and constraints with these instructions):
+${knowledgeHubContext?.trim() || '(No knowledge hub content configured.)'}
 
 ASSESSMENT DATA:
 ${JSON.stringify(assessmentData, null, 2)}
@@ -32,7 +41,7 @@ ${JSON.stringify(assessmentData, null, 2)}
 AVAILABLE DOCUMENTS (use these types and file names when citing):
 ${JSON.stringify(documents.map(d => ({ type: d.type, fileName: d.fileName, id: d.id })), null, 2)}
 
-Return a JSON object with this exact structure (fill every field from the assessment; use empty arrays/strings where no data):
+Return a JSON object with this exact structure (fill every field from the assessment; use empty arrays/strings where no data). Populate each section so it reflects the corresponding Knowledge Hub structure instructions—not generic filler:
 
 {
   "case_summary": {
@@ -103,3 +112,64 @@ Improvements should:
 
 Return only the improved content, not explanations.
 `
+export type ClientIdentityForNarrative = {
+  clientName: string
+  tdcjNumber: string
+}
+
+export function buildParoleNarrativePrompt(
+  assessmentData: unknown,
+  documents: { id: string; type: string; fileName: string }[],
+  structureSections: { slug: string; title: string; content: string }[],
+  llmGuidelinesText: string,
+  clientIdentity?: ClientIdentityForNarrative
+): string {
+  const n = structureSections.length
+  const order = structureSections.map((s) => s.slug).join(', ')
+  const sectionBlocks = structureSections
+    .map(
+      (s, i) =>
+        `#### ${i + 1}. ${s.title}\n- slug (exact): ${s.slug}\n- Staff instructions for this narrative block (apply every line; these override generic tone below for this block only):\n${s.content}`
+    )
+    .join('\n\n')
+
+  const name = clientIdentity?.clientName?.trim() || ''
+  const sid = clientIdentity?.tdcjNumber?.trim() || ''
+  const identityBlock =
+    name || sid
+      ? `=== CLIENT IDENTITY (authoritative — use when referring to this person) ===
+Legal / file name to use: ${name || '(name not on file — use assessment only if present)'}
+TDCJ #: ${sid || '—'}
+When any staff instructions above say to use the client's name, refer to them as "${name || 'the client'}" (or "${name}" consistently). Do not replace the name with generic third-person stand-ins such as "the individual," "the offender," or "this person" unless the staff instructions for that specific numbered section explicitly require distanced wording.`
+      : `=== CLIENT IDENTITY ===
+(No case name was passed; derive the client's name only from assessment data if present, and follow staff instructions on naming.)`
+
+  return `You are drafting a Texas parole campaign as plain-text narrative blocks for staff to copy. Write exactly ${n} sections in the fixed order below.
+
+Precedence (critical): For each numbered section, the "Staff instructions for this narrative block" for that section override conflicting LLM guidelines and any default "neutral" or analytical phrasing habits. If staff instructions require a naming style, voice, or emphasis, implement that first.
+
+${identityBlock}
+
+${sectionBlocks}
+
+${llmGuidelinesText}
+
+ASSESSMENT DATA (only use facts from here; do not fabricate):
+${JSON.stringify(assessmentData, null, 2)}
+
+DOCUMENT INDEX (types and names for reference; cite accurately):
+${JSON.stringify(documents, null, 2)}
+
+Return a single JSON object with this exact shape:
+{ "sections": [ { "slug": "<string>", "title": "<string>", "content": "<plain text, multiple paragraphs allowed>" } ] }
+
+Hard requirements:
+- sections.length === ${n}
+- Section order must match slugs exactly: ${order}
+- For each item, set slug and title to match the corresponding numbered section above (same slug and title strings).
+- For each section, content must satisfy every instruction in that section's "Staff instructions" block. Where staff instructions conflict with LLM guidelines, staff instructions win for that section.
+- content must use only assessment/document facts; apply LLM guidelines where they do not conflict with staff instructions.
+${name ? `- When staff instructions call for the client's name, use "${name}" (not depersonalizing substitutes unless that section's staff text explicitly allows them).` : ''}
+
+Output only valid JSON, no markdown code fences or commentary.`
+}

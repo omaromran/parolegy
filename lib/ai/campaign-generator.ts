@@ -4,20 +4,21 @@ import { CAMPAIGN_BLUEPRINT_PROMPT } from './prompts'
 export async function generateCampaignBlueprint(
   assessmentData: any,
   documents: any[],
-  caseData: any
+  caseData: any,
+  knowledgeHubContext?: string
 ): Promise<CampaignBlueprint> {
   if (!openai) {
     throw new Error('OpenAI API key is not configured. Please set OPENAI_API_KEY environment variable.')
   }
 
-  const prompt = CAMPAIGN_BLUEPRINT_PROMPT(assessmentData, documents)
+  const prompt = CAMPAIGN_BLUEPRINT_PROMPT(assessmentData, documents, knowledgeHubContext)
 
   const response = await openai.chat.completions.create({
     model: DEFAULT_MODEL,
     messages: [
       {
         role: 'system',
-        content: `You are an expert parole campaign writer. Generate a structured Campaign Blueprint as JSON. Follow the exact schema provided.`,
+        content: `You are an expert parole campaign writer. Output one JSON object matching the user schema. The Knowledge Hub block (including "MANDATORY: APPLY EACH STRUCTURE SECTION TO THESE BLUEPRINT FIELDS") defines how each part of the campaign must read—implement those instructions in the matching JSON paths; do not ignore them in favor of generic section filler.`,
       },
       {
         role: 'user',
@@ -25,7 +26,7 @@ export async function generateCampaignBlueprint(
       },
     ],
     response_format: { type: 'json_object' },
-    temperature: 0.7,
+    temperature: 0.55,
   })
 
   const content = response.choices[0]?.message?.content

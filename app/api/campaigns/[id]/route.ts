@@ -17,7 +17,7 @@ export async function GET(
   }
 
   const campaign = await db.campaign.findFirst({
-    where: { id },
+    where: { id, publishedToClient: true },
     include: {
       case: {
         select: {
@@ -41,6 +41,15 @@ export async function GET(
     // ignore
   }
 
+  let narrative: unknown = null
+  if (campaign.narrativeJson) {
+    try {
+      narrative = JSON.parse(campaign.narrativeJson)
+    } catch {
+      narrative = null
+    }
+  }
+
   return NextResponse.json({
     campaign: {
       id: campaign.id,
@@ -54,6 +63,7 @@ export async function GET(
       clientName: campaign.case.clientName,
       tdcjNumber: campaign.case.tdcjNumber,
       blueprint,
+      narrative,
     },
   })
 }

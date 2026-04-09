@@ -1,0 +1,370 @@
+/* Parole campaign booklet — screen preview + print (one .booklet-page ≈ one sheet) */
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:wght@400;500;600;700&display=swap");
+
+.parole-booklet {
+  --book-paper: #f7f4ef;
+  --book-ink: #1c1b19;
+  --book-muted: #5c5854;
+  --book-rule: #2a2622;
+  --book-accent: #6b4f2a;
+  --book-band: #2a2622;
+  --book-page-w: 8.5in;
+  --book-page-h: 11in;
+  --book-pad: 0.72in;
+  font-family: "Source Sans 3", system-ui, sans-serif;
+  font-size: 11pt;
+  line-height: 1.45;
+  color: var(--book-ink);
+  background: #c8c4bc;
+  min-height: 100vh;
+}
+
+.parole-booklet__toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 1rem;
+  background: rgba(28, 27, 25, 0.92);
+  color: #f7f4ef;
+  border-bottom: 1px solid #000;
+}
+
+.parole-booklet__toolbar a {
+  color: #e8dcc8;
+  text-decoration: underline;
+  font-size: 0.875rem;
+}
+
+.parole-booklet__toolbar span {
+  font-size: 0.8rem;
+  opacity: 0.85;
+}
+
+.parole-booklet__stack {
+  max-width: calc(var(--book-page-w) + 2rem);
+  margin: 0 auto;
+  padding: 1.25rem 1rem 3rem;
+}
+
+.parole-booklet__page {
+  width: var(--book-page-w);
+  min-height: var(--book-page-h);
+  margin: 0 auto 1.5rem;
+  padding: var(--book-pad);
+  box-sizing: border-box;
+  background: var(--book-paper);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
+  position: relative;
+  overflow: hidden;
+}
+
+.parole-booklet__page--cover {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: linear-gradient(165deg, #2a2622 0%, #1a1816 48%, #3d3429 100%);
+  color: #f7f4ef;
+  padding: 0;
+}
+
+.parole-booklet__cover-band {
+  padding: var(--book-pad);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.parole-booklet__cover-kicker {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  opacity: 0.75;
+  margin-bottom: 1.25rem;
+}
+
+.parole-booklet__cover-title {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-weight: 700;
+  font-size: 2.35rem;
+  line-height: 1.15;
+  margin: 0 0 0.5rem;
+  max-width: 5.5in;
+}
+
+.parole-booklet__cover-sub {
+  font-size: 1rem;
+  font-weight: 500;
+  opacity: 0.9;
+  max-width: 4.5in;
+  margin: 0;
+}
+
+.parole-booklet__cover-meta {
+  font-size: 0.95rem;
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(247, 244, 239, 0.25);
+}
+
+.parole-booklet__cover-photo {
+  width: 100%;
+  height: 3.2in;
+  object-fit: cover;
+  display: block;
+  opacity: 0.95;
+}
+
+.parole-booklet__cover-footer {
+  padding: 0.5rem var(--book-pad) 0.65rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.55;
+  border-top: 1px solid rgba(247, 244, 239, 0.12);
+}
+
+.parole-booklet__band {
+  background: var(--book-band);
+  color: #f7f4ef;
+  margin: calc(-1 * var(--book-pad)) calc(-1 * var(--book-pad)) 1rem;
+  padding: 0.55rem var(--book-pad);
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.parole-booklet__h2 {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.65rem;
+  color: var(--book-rule);
+  border-bottom: 2px solid var(--book-accent);
+  padding-bottom: 0.2rem;
+}
+
+.parole-booklet__h3 {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--book-accent);
+  margin: 1rem 0 0.35rem;
+  font-weight: 700;
+}
+
+.parole-booklet__p {
+  margin: 0 0 0.65rem;
+  text-align: justify;
+  hyphens: auto;
+}
+
+.parole-booklet__list {
+  margin: 0.35rem 0 0.75rem 1.1rem;
+  padding: 0;
+}
+
+.parole-booklet__list li {
+  margin-bottom: 0.35rem;
+}
+
+.parole-booklet__toc {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.parole-booklet__toc li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.98rem;
+}
+
+.parole-booklet__toc li::before {
+  content: "";
+  flex: 1;
+  border-bottom: 1px dotted var(--book-muted);
+  min-width: 1rem;
+  order: 2;
+  opacity: 0.5;
+}
+
+.parole-booklet__toc-num {
+  order: 3;
+  font-variant-numeric: tabular-nums;
+  color: var(--book-muted);
+  font-size: 0.85rem;
+}
+
+.parole-booklet__toc-label {
+  order: 1;
+  font-weight: 600;
+}
+
+.parole-booklet__fact {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.45rem;
+  font-size: 0.98rem;
+}
+
+.parole-booklet__fact-mark {
+  color: var(--book-accent);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.parole-booklet__concern {
+  margin-bottom: 0.85rem;
+  padding: 0.5rem 0.55rem;
+  background: rgba(107, 79, 42, 0.06);
+  border-left: 3px solid var(--book-accent);
+}
+
+.parole-booklet__concern strong {
+  display: block;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--book-accent);
+  margin-bottom: 0.2rem;
+}
+
+.parole-booklet__grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 900px) {
+  .parole-booklet__grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.parole-booklet__plan-col {
+  border: 1px solid rgba(42, 38, 34, 0.15);
+  padding: 0.45rem;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.parole-booklet__plan-col h4 {
+  margin: 0 0 0.35rem;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--book-accent);
+}
+
+.parole-booklet__photo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.45rem;
+  margin-top: 0.5rem;
+}
+
+.parole-booklet__photo-grid img {
+  width: 100%;
+  height: 2.6in;
+  object-fit: cover;
+  border: 1px solid rgba(42, 38, 34, 0.2);
+}
+
+.parole-booklet__doc-card {
+  border: 1px solid rgba(42, 38, 34, 0.18);
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  background: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+}
+
+.parole-booklet__doc-card a {
+  color: var(--book-accent);
+  font-weight: 600;
+}
+
+.parole-booklet__letter-img {
+  max-width: 100%;
+  max-height: 9in;
+  object-fit: contain;
+  border: 1px solid rgba(42, 38, 34, 0.15);
+  display: block;
+  margin: 0.5rem auto 0;
+}
+
+.parole-booklet__divider-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.parole-booklet__divider-page h2 {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--book-rule);
+  max-width: 4.5in;
+}
+
+.parole-booklet__divider-page p {
+  margin: 0.75rem 0 0;
+  font-size: 0.85rem;
+  color: var(--book-muted);
+  max-width: 4in;
+}
+
+.parole-booklet__supporter {
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px dashed rgba(42, 38, 34, 0.15);
+}
+
+.parole-booklet__supporter:last-child {
+  border-bottom: none;
+}
+
+@media print {
+  .parole-booklet {
+    background: white;
+  }
+
+  .parole-booklet__toolbar {
+    display: none !important;
+  }
+
+  .parole-booklet__stack {
+    padding: 0;
+    max-width: none;
+  }
+
+  .parole-booklet__page {
+    margin: 0;
+    box-shadow: none;
+    page-break-after: always;
+    break-after: page;
+  }
+
+  .parole-booklet__page:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+
+  @page {
+    size: letter;
+    margin: 0;
+  }
+}

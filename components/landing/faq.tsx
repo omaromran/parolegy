@@ -17,7 +17,8 @@ const faqs = [
   },
   {
     question: "What if my case is denied?",
-    answer: "For Option 1 (White-Glove), we include unlimited review cycles until approval. For Options 2 and 3, you can request team review and revisions for subsequent review cycles.",
+    answer:
+      "You can work with Parolegy staff on revisions for a future review cycle. Scope depends on your agreement with the team.",
   },
   {
     question: "Is Parolegy a law firm?",
@@ -25,7 +26,8 @@ const faqs = [
   },
   {
     question: "How long does it take to create a campaign?",
-    answer: "Timeline varies by service option. Option 1 (White-Glove) is handled entirely by our team. Option 2 (Hybrid) includes team review and editing. Option 3 (Self-Serve) can generate a campaign immediately after you complete the assessment and upload documents.",
+    answer:
+      "After you submit your assessment and documents, Parolegy staff build the campaign narrative. Timing depends on review and edits; the campaign appears in your dashboard only after staff publish it to you.",
   },
 ]
 

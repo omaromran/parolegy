@@ -14,7 +14,6 @@ interface Case {
   tdcjNumber: string
   status: string
   nextReviewDate: string | null
-  serviceOption: number
   createdAt: string
   user: {
     name: string | null
@@ -110,11 +109,21 @@ export default function AdminPage() {
         </div>
       </header>
       <main className="container py-8">
-        <div className="mb-8">
-          <h1 className="font-serif text-3xl font-bold mb-2">Admin Dashboard</h1>
-          <p className="text-muted-foreground">
-            Manage cases and review submissions
-          </p>
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h1 className="font-serif text-3xl font-bold mb-2">Admin Dashboard</h1>
+            <p className="text-muted-foreground">
+              Review submissions, generate campaigns, and publish to clients when ready
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/admin/knowledge">Knowledge hub</Link>
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/admin/roster">DOC roster pipeline</Link>
+            </Button>
+          </div>
         </div>
 
         <div className="grid gap-6">
@@ -139,7 +148,7 @@ export default function AdminPage() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid md:grid-cols-3 gap-4 mb-4">
+                  <div className="grid md:grid-cols-2 gap-4 mb-4">
                     <div>
                       <p className="text-sm text-muted-foreground">Status</p>
                       <p className="font-medium">{statusLabels[caseItem.status] || caseItem.status}</p>
@@ -150,14 +159,6 @@ export default function AdminPage() {
                         {caseItem.nextReviewDate
                           ? formatDateShort(caseItem.nextReviewDate)
                           : 'Not set'}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Service Option</p>
-                      <p className="font-medium">
-                        {caseItem.serviceOption === 1 && "White-Glove"}
-                        {caseItem.serviceOption === 2 && "Hybrid"}
-                        {caseItem.serviceOption === 3 && "Self-Serve"}
                       </p>
                     </div>
                   </div>

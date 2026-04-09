@@ -5,47 +5,35 @@ import { Button } from "@/components/ui/button"
 import { Check } from "lucide-react"
 import Link from "next/link"
 
-const services = [
+const pillars = [
   {
-    name: "White-Glove \"Done For You\"",
-    option: 1,
-    price: "Contact for pricing",
-    description: "Family + incarcerated client provide info and uploads, Parolegy team handles everything.",
+    title: "You submit the facts",
+    description:
+      "Create an account as the incarcerated person or a family member. Complete the assessment and upload documents—no campaign is generated on your side.",
     features: [
-      "Unlimited review cycles until approval",
-      "Intake + assessment + narrative engineering",
-      "Campaign booklet design + reentry guide",
-      "Support letters coaching",
-      "Interview prep guidance",
-      "Ongoing iteration per review cycle",
+      "Guided assessment aligned to parole review",
+      "Support letters, photos, and records in one place",
+      "Staff are notified when you submit",
     ],
-    cta: "Schedule Consultation",
   },
   {
-    name: "Hybrid \"Self-Serve + Consultation + Team Review\"",
-    option: 2,
-    price: "Contact for pricing",
-    description: "Client/family create account, complete guided assessment wizard, upload docs/photos.",
+    title: "Parolegy builds the campaign",
+    description:
+      "Our team uses your materials and the Knowledge hub to draft the parole campaign narrative. You do not self-generate the campaign.",
     features: [
-      "Schedule call with Ebonie/team (built-in scheduling)",
-      "AI pre-builds a draft campaign",
-      "Team reviews/edits, then generates final",
-      "Reentry guide included",
-      "Video guidance at each step",
+      "Structured narrative aligned to Texas review expectations",
+      "Iterates with staff until the draft is ready",
+      "Print-ready booklet when that feature is enabled",
     ],
-    cta: "Get Started",
   },
   {
-    name: "Self-Serve \"AI Campaign Generator\"",
-    option: 3,
-    price: "Contact for pricing",
-    description: "Client/family create account, complete wizard, upload docs/photos, click Generate.",
+    title: "Published when ready",
+    description:
+      "When the draft meets your expectations, staff publish it from the admin portal. Then it becomes visible to you and your family in the dashboard.",
     features: [
-      "AI produces campaign booklet + reentry guide automatically",
-      "Step-by-step video guidance",
-      "Optional paid add-on \"Team Review\"",
+      "Clear visibility only after staff publish",
+      "Blueprint and narrative access for approved versions",
     ],
-    cta: "Get Started",
   },
 ]
 
@@ -54,22 +42,22 @@ export function Services() {
     <section className="container py-16 md:py-24">
       <div className="mx-auto max-w-6xl">
         <h2 className="font-serif text-4xl md:text-5xl font-bold text-center mb-4">
-          Choose Your Service Option
+          How it works
         </h2>
         <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-          Three ways to create your Parole Campaign, from full-service to self-serve.
+          Submit your information; Parolegy staff prepare and publish your parole campaign—you do not
+          generate it yourself.
         </p>
         <div className="grid md:grid-cols-3 gap-6">
-          {services.map((service) => (
-            <Card key={service.option} className="flex flex-col">
+          {pillars.map((p) => (
+            <Card key={p.title} className="flex flex-col">
               <CardHeader>
-                <CardTitle className="text-xl">{service.name}</CardTitle>
-                <CardDescription>{service.description}</CardDescription>
-                <div className="mt-4 text-2xl font-bold">{service.price}</div>
+                <CardTitle className="text-xl">{p.title}</CardTitle>
+                <CardDescription>{p.description}</CardDescription>
               </CardHeader>
               <CardContent className="flex-1">
                 <ul className="space-y-3">
-                  {service.features.map((feature, index) => (
+                  {p.features.map((feature, index) => (
                     <li key={index} className="flex items-start gap-2">
                       <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                       <span className="text-sm">{feature}</span>
@@ -79,7 +67,7 @@ export function Services() {
               </CardContent>
               <CardFooter>
                 <Button className="w-full" asChild>
-                  <Link href={`/signup?option=${service.option}`}>{service.cta}</Link>
+                  <Link href="/signup">Create account</Link>
                 </Button>
               </CardFooter>
             </Card>

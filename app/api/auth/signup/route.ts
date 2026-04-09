@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createUser } from '@/lib/auth'
+import { SignJWT } from 'jose'
+
+const secret = new TextEncoder().encode(
+  process.env.NEXTAUTH_SECRET || 'your-secret-key-change-in-production'
+)
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,7 +29,17 @@ export async function POST(request: NextRequest) {
 
     const user = await createUser(email, password, name, userRole)
 
-    return NextResponse.json({
+    const token = await new SignJWT({
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+    })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime('7d')
+      .sign(secret)
+
+    const response = NextResponse.json({
       success: true,
       user: {
         id: user.id,
@@ -33,6 +48,15 @@ export async function POST(request: NextRequest) {
         role: user.role,
       },
     })
+
+    response.cookies.set('auth-token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7,
+    })
+
+    return response
   } catch (error: any) {
     console.error('Signup error:', error)
     return NextResponse.json(

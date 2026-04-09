@@ -131,6 +131,7 @@ export async function POST(request: NextRequest) {
         nextReviewDate: nextReviewDate && !isNaN(nextReviewDate.getTime()) ? nextReviewDate : null,
         district: (responses.district as string) || null,
         status: 'ASSESSMENT_IN_PROGRESS',
+        serviceOption: 3,
       },
     })
 

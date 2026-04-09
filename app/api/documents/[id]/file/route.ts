@@ -26,7 +26,13 @@ export async function GET(
       case: { select: { userId: true } },
     },
   })
-  if (!doc || doc.case.userId !== user.id) {
+  if (!doc) {
+    return NextResponse.json({ error: 'Document not found' }, { status: 404 })
+  }
+
+  const isOwner = doc.case.userId === user.id
+  const isStaff = user.role === 'ADMIN' || user.role === 'STAFF'
+  if (!isOwner && !isStaff) {
     return NextResponse.json({ error: 'Document not found' }, { status: 404 })
   }
 

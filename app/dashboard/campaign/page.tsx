@@ -1,22 +1,21 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { formatDateShort } from "@/lib/utils"
-import { Sparkles } from "lucide-react"
 
 type CaseSummary = {
   id: string
   clientName: string
   tdcjNumber: string
-  serviceOption: number
   assessment: { completedAt: string | null } | null
   meetsRequiredDocuments?: boolean
 }
+
+type NarrativeSection = { slug: string; title: string; content: string }
 
 type CampaignSummary = {
   id: string
@@ -26,24 +25,22 @@ type CampaignSummary = {
   reviewCycle: number
   createdAt: string
   renderedPdfUrl: string | null
+  narrative?: { sections: NarrativeSection[] } | null
 }
 
 const statusLabels: Record<string, string> = {
   DRAFT: "Draft",
-  AI_GENERATED: "AI Generated",
+  AI_GENERATED: "Parolegy AI Generated",
   TEAM_EDITED: "Team Edited",
   CLIENT_APPROVED: "Client Approved",
   FINAL: "Final",
 }
 
 export default function CampaignPage() {
-  const router = useRouter()
   const [cases, setCases] = useState<CaseSummary[]>([])
   const [caseId, setCaseId] = useState<string | null>(null)
   const [campaigns, setCampaigns] = useState<CampaignSummary[]>([])
   const [loading, setLoading] = useState(true)
-  const [generating, setGenerating] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     fetch("/api/cases")
@@ -70,44 +67,6 @@ export default function CampaignPage() {
   }, [caseId])
 
   const primaryCase = cases.find((c) => c.id === caseId) ?? cases[0]
-  const isSelfServe = primaryCase?.serviceOption === 3
-  const hasAssessment = !!primaryCase?.assessment?.completedAt
-  const hasRequiredDocs = primaryCase?.meetsRequiredDocuments === true
-  const canGenerate = isSelfServe && hasAssessment && hasRequiredDocs
-
-  const handleGenerate = async () => {
-    if (!caseId || !canGenerate) return
-    setGenerating(true)
-    setError(null)
-    try {
-      const res = await fetch("/api/campaign/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ caseId }),
-      })
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok) {
-        setError(data.error || "Failed to generate campaign")
-        return
-      }
-      setCampaigns((prev) => [
-        {
-          id: data.campaignId,
-          version: 1,
-          language: "en",
-          status: "AI_GENERATED",
-          reviewCycle: 1,
-          createdAt: new Date().toISOString(),
-          renderedPdfUrl: null,
-        },
-        ...prev,
-      ])
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to generate campaign")
-    } finally {
-      setGenerating(false)
-    }
-  }
 
   if (loading) {
     return (
@@ -133,52 +92,31 @@ export default function CampaignPage() {
       </header>
       <main className="container py-8">
         <div className="max-w-6xl mx-auto">
-          <div className="flex justify-between items-start mb-8 flex-wrap gap-4">
-            <div>
-              <h1 className="font-serif text-3xl font-bold mb-2">Campaign Builder</h1>
-              <p className="text-muted-foreground">
-                Generate and manage your parole campaign booklets (self-serve)
-              </p>
-            </div>
-            {primaryCase && (
-              <Button
-                onClick={handleGenerate}
-                disabled={!canGenerate || generating}
-              >
-                <Sparkles className="mr-2 h-4 w-4" />
-                {generating ? "Generating…" : "Generate campaign"}
-              </Button>
-            )}
+          <div className="mb-8">
+            <h1 className="font-serif text-3xl font-bold mb-2">Parole campaign</h1>
+            <p className="text-muted-foreground max-w-2xl">
+              Staff publish your parole campaign here when it is ready. You only see content after
+              publication. The print-ready booklet view is not available yet.
+            </p>
           </div>
 
-          {!canGenerate && primaryCase && (
-            <Card className="mb-8 border-amber-500/30 bg-amber-500/5">
+          {primaryCase && campaigns.length === 0 && (
+            <Card className="mb-8 border-muted">
               <CardContent className="pt-6">
                 <p className="text-sm text-muted-foreground">
-                  {!isSelfServe && "Campaign generation is available only for self-serve (option 3)."}
-                  {isSelfServe && !hasAssessment && "Complete your assessment first."}
-                  {isSelfServe && hasAssessment && !hasRequiredDocs && "Upload required documents (min 3 support letters, 10 photos) first."}
+                  Nothing published yet. Finish your assessment and required uploads. Staff are notified,
+                  then they generate the campaign and publish it to your dashboard when it is ready.
                 </p>
-                <div className="mt-2 flex gap-2">
-                  {!hasAssessment && (
-                    <Button variant="outline" size="sm" asChild>
-                      <Link href="/dashboard/assessment">Complete assessment</Link>
-                    </Button>
-                  )}
-                  {hasAssessment && !hasRequiredDocs && (
-                    <Button variant="outline" size="sm" asChild>
-                      <Link href="/dashboard/uploads">Upload documents</Link>
-                    </Button>
-                  )}
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href="/dashboard/assessment">Assessment</Link>
+                  </Button>
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href="/dashboard/uploads">Uploads</Link>
+                  </Button>
                 </div>
               </CardContent>
             </Card>
-          )}
-
-          {error && (
-            <div className="mb-6 p-4 rounded-lg bg-destructive/10 border border-destructive/30 text-sm text-destructive">
-              {error}
-            </div>
           )}
 
           {campaigns.length > 0 && (
@@ -191,19 +129,41 @@ export default function CampaignPage() {
                       <div>
                         <CardTitle>Campaign Version {campaign.version}</CardTitle>
                         <CardDescription>
-                          Created {formatDateShort(campaign.createdAt)} · Language: {campaign.language.toUpperCase()}
+                          Created {formatDateShort(campaign.createdAt)} · Language:{" "}
+                          {campaign.language.toUpperCase()}
                         </CardDescription>
                       </div>
                       <Badge>{statusLabels[campaign.status] || campaign.status}</Badge>
                     </div>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="space-y-4">
                     <div className="flex gap-4 flex-wrap">
-                      <Button variant="outline" size="sm" asChild>
-                        <Link href={`/dashboard/campaign/${campaign.id}`}>View</Link>
+                      <Button
+                        size="sm"
+                        type="button"
+                        disabled
+                        className="opacity-50"
+                        title="Print-ready booklet coming soon"
+                      >
+                        Parole campaign (booklet)
                       </Button>
-                      <Button variant="outline" size="sm">Download PDF</Button>
+                      <Button variant="outline" size="sm" disabled title="Coming soon">
+                        Download PDF
+                      </Button>
                     </div>
+                    {campaign.narrative?.sections?.length ? (
+                      <div className="space-y-3 pt-2 border-t">
+                        <p className="text-sm font-medium">Published narrative</p>
+                        {campaign.narrative.sections.map((sec) => (
+                          <div key={sec.slug} className="rounded-md border bg-muted/30 p-4">
+                            <h3 className="text-sm font-semibold mb-2">{sec.title}</h3>
+                            <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                              {sec.content}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : null}
                   </CardContent>
                 </Card>
               ))}
@@ -214,24 +174,11 @@ export default function CampaignPage() {
             <Card>
               <CardContent className="pt-6 text-center">
                 <p className="text-muted-foreground mb-4">
-                  Complete your assessment first to create a case, then you can generate a campaign.
+                  Complete your assessment first to create a case. Staff will generate your parole campaign
+                  when your materials are ready.
                 </p>
                 <Button asChild>
                   <Link href="/dashboard/assessment">Start assessment</Link>
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-
-          {primaryCase && campaigns.length === 0 && canGenerate && (
-            <Card>
-              <CardContent className="pt-6 text-center">
-                <p className="text-muted-foreground mb-4">
-                  All set. Click &quot;Generate campaign&quot; to create your first campaign from your assessment and documents.
-                </p>
-                <Button onClick={handleGenerate} disabled={generating}>
-                  <Sparkles className="mr-2 h-4 w-4" />
-                  {generating ? "Generating…" : "Generate your first campaign"}
                 </Button>
               </CardContent>
             </Card>

@@ -1,0 +1,11 @@
+{
+"date": "2026-04-08",
+"daily_roster_json": "/Users/omaromran/Documents/GitHub/parolegy/pipeline/output/daily_roster_2026-04-08.json",
+"daily_roster_csv": "/Users/omaromran/Documents/GitHub/parolegy/pipeline/output/daily_roster_2026-04-08.csv",
+"new_today_json": "/Users/omaromran/Documents/GitHub/parolegy/pipeline/output/new_today_2026-04-08.json",
+"new_today_csv": "/Users/omaromran/Documents/GitHub/parolegy/pipeline/output/new_today_2026-04-08.csv",
+"counts": {
+"daily_total": 143597,
+"new_today": 0
+}
+}

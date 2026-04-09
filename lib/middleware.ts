@@ -20,21 +20,21 @@ export async function getAuthUser(request: NextRequest) {
   }
 }
 
-export function requireAuth(handler: (req: NextRequest, user: any) => Promise<NextResponse>) {
-  return async (req: NextRequest) => {
+export function requireAuth(handler: (req: NextRequest, user: any, ...args: any[]) => Promise<NextResponse>) {
+  return async (req: NextRequest, ...args: any[]) => {
     const user = await getAuthUser(req)
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    return handler(req, user)
+    return handler(req, user, ...args)
   }
 }
 
 export function requireRole(allowedRoles: string[]) {
-  return (handler: (req: NextRequest, user: any) => Promise<NextResponse>) => {
-    return async (req: NextRequest) => {
+  return (handler: (req: NextRequest, user: any, ...args: any[]) => Promise<NextResponse>) => {
+    return async (req: NextRequest, ...args: any[]) => {
       const user = await getAuthUser(req)
 
       if (!user) {
@@ -45,7 +45,7 @@ export function requireRole(allowedRoles: string[]) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
       }
 
-      return handler(req, user)
+      return handler(req, user, ...args)
     }
   }
 }

@@ -18,17 +18,18 @@ datasource db {
 // MessageStatus: UNREAD, READ, ARCHIVED
 
 model User {
-  id                   String   @id @default(cuid())
-  email                String   @unique
-  passwordHash         String?
-  name                 String?
-  role                 String   @default("CLIENT") // CLIENT, FAMILY, STAFF, ADMIN
-  language             String   @default("en")
-  emailVerified        DateTime?
-  passwordResetToken   String?
-  passwordResetExpires DateTime?
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+  id                     String   @id @default(cuid())
+  email                  String   @unique
+  passwordHash           String?
+  name                   String?
+  role                   String   @default("CLIENT") // CLIENT, FAMILY, STAFF, ADMIN
+  language               String   @default("en")
+  preferredServiceOption Int      @default(3) // legacy; unused in product UI
+  emailVerified          DateTime?
+  passwordResetToken     String?
+  passwordResetExpires   DateTime?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
 
   // Relations
   cases         Case[]
@@ -49,7 +50,7 @@ model Case {
   nextReviewDate        DateTime?
   district              String?
   status                String   @default("DRAFT") // DRAFT, INTAKE, ASSESSMENT_IN_PROGRESS, etc.
-  serviceOption         Int      @default(3) // 1=White-Glove, 2=Hybrid, 3=Self-Serve
+  serviceOption         Int      @default(3) // legacy; unused in product UI
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 
@@ -107,6 +108,8 @@ model Campaign {
   version       Int      @default(1)
   language      String   @default("en")
   blueprintJson String   // Campaign Blueprint structure (stored as JSON text)
+  narrativeJson String?  // Knowledge-hub section narrative (plain text per section); primary output until booklet build
+  publishedToClient Boolean @default(false) // staff turns on when narrative is ready for client/family to view
   renderedPdfUrl String? // URL to final PDF
   status        String   @default("DRAFT") // DRAFT, AI_GENERATED, TEAM_EDITED, etc.
   reviewCycle   Int      @default(1) // Which review cycle this is for
@@ -174,4 +177,20 @@ model AuditLog {
   @@index([actorId])
   @@index([entityType, entityId])
   @@index([createdAt])
+}
+
+// Admin-edited guidance injected into parole campaign AI prompts.
+// category: PAROLE_STRUCTURE | LLM_GUIDELINES
+model KnowledgeHubEntry {
+  id        String   @id @default(cuid())
+  category  String
+  slug      String
+  title     String
+  content   String   @default("")
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([category, slug])
+  @@index([category])
 }

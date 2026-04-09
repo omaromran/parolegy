@@ -4,8 +4,9 @@ import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
 import Link from "next/link"
-import { Upload, File as FileIcon, X, Download, ExternalLink, Image as ImageIcon } from "lucide-react"
+import { Upload, File as FileIcon, X, Download, ExternalLink, Image as ImageIcon, PenLine } from "lucide-react"
 
 const documentTypes = [
   { id: "SUPPORT_LETTER", label: "Support Letter", min: 3, max: 10 },
@@ -82,6 +83,8 @@ export default function UploadsPage() {
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [savedDocuments, setSavedDocuments] = useState<SavedDocument[]>([])
   const [documentsLoading, setDocumentsLoading] = useState(false)
+  const [supportLetterText, setSupportLetterText] = useState("")
+  const [savingWrittenLetter, setSavingWrittenLetter] = useState(false)
 
   useEffect(() => {
     fetch("/api/cases")
@@ -123,6 +126,37 @@ export default function UploadsPage() {
       ...uploads,
       [type]: uploads[type].filter((_, i) => i !== index),
     })
+  }
+
+  const handleSaveWrittenSupportLetter = async () => {
+    if (!caseId) return
+    const trimmed = supportLetterText.trim()
+    if (!trimmed) {
+      alert("Please write your support letter before saving.")
+      return
+    }
+    setSavingWrittenLetter(true)
+    try {
+      const filename = `support-letter-written-${Date.now()}.txt`
+      const file = new File(
+        [new Blob([trimmed], { type: "text/plain" })],
+        filename,
+        { type: "text/plain" }
+      )
+      const formData = new FormData()
+      formData.append("file", file)
+      formData.append("caseId", caseId)
+      formData.append("type", "SUPPORT_LETTER")
+      const res = await fetch("/api/documents/upload", { method: "POST", body: formData })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || "Failed to save letter")
+      setSupportLetterText("")
+      loadDocuments()
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Failed to save letter")
+    } finally {
+      setSavingWrittenLetter(false)
+    }
   }
 
   const handleLoadSamples = async () => {
@@ -347,6 +381,29 @@ export default function UploadsPage() {
                           </Button>
                         </label>
                       </div>
+                      {docType.id === "SUPPORT_LETTER" && (
+                        <div className="space-y-3 pt-2 border-t">
+                          <p className="text-sm font-medium flex items-center gap-2">
+                            <PenLine className="h-4 w-4" aria-hidden />
+                            Or write your support letter here
+                          </p>
+                          <Textarea
+                            placeholder="Type your support letter. It will be saved as a document and count toward your support letter requirement."
+                            value={supportLetterText}
+                            onChange={(e) => setSupportLetterText(e.target.value)}
+                            rows={8}
+                            className="resize-y min-h-[120px]"
+                          />
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            onClick={handleSaveWrittenSupportLetter}
+                            disabled={!caseId || savingWrittenLetter || !supportLetterText.trim()}
+                          >
+                            {savingWrittenLetter ? "Saving…" : "Save as support letter"}
+                          </Button>
+                        </div>
+                      )}
                       {typeUploads.length > 0 && (
                         <div className="space-y-2">
                           {typeUploads.map((file, index) => (

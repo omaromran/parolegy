@@ -1,0 +1,330 @@
+{
+  "TX": {
+    "_DEFAULT": {
+      "address": "Texas Department of Criminal Justice — use unit-specific mail rules; General Delivery reference",
+      "city": "Huntsville",
+      "state": "TX",
+      "zip": "77320",
+      "note": "Replace with unit PO Box from https://www.tdcj.texas.gov/unit_directory.html for production mail."
+    },
+    "POLUNSKY": {
+      "address": "Polunsky Unit, 3872 FM 350 South",
+      "city": "Livingston",
+      "state": "TX",
+      "zip": "77351"
+    },
+    "RAMSEY": {
+      "address": "Ramsey Unit, 1100 FM 655 Road",
+      "city": "Rosharon",
+      "state": "TX",
+      "zip": "77583"
+    },
+    "ELLIS": {
+      "address": "Ellis Unit, 1697 FM 980",
+      "city": "Huntsville",
+      "state": "TX",
+      "zip": "77320"
+    },
+    "HUNTSVILLE": {
+      "address": "Huntsville Unit, 815 12th Street",
+      "city": "Huntsville",
+      "state": "TX",
+      "zip": "77348"
+    },
+    "YOUNG": {
+      "address": "Young Unit, US Hwy 84 East",
+      "city": "Dayton",
+      "state": "TX",
+      "zip": "77535"
+    },
+    "FERGUSON": {
+      "address": "Ferguson Unit, 12120 Savage Drive",
+      "city": "Midway",
+      "state": "TX",
+      "zip": "75852"
+    },
+    "GURNEY": {
+      "address": "Gurney Unit, 4250 FM 2028",
+      "city": "Palestine",
+      "state": "TX",
+      "zip": "75803"
+    },
+    "ESTELLE": {
+      "address": "Estelle Unit, 11051 North State Highway 94",
+      "city": "Huntsville",
+      "state": "TX",
+      "zip": "77320"
+    },
+    "ESTES": {
+      "address": "Estes Unit, 1100 North Avenue",
+      "city": "Venus",
+      "state": "TX",
+      "zip": "76084"
+    },
+    "BYRD": {
+      "address": "Byrd Unit, 6404 FM 2972",
+      "city": "Huntsville",
+      "state": "TX",
+      "zip": "77320"
+    },
+    "PACK": {
+      "address": "Pack Unit, 2400 Wallace Pack Road",
+      "city": "Navasota",
+      "state": "TX",
+      "zip": "77868"
+    },
+    "JORDAN": {
+      "address": "Jordan Unit, 1992 Helton Road",
+      "city": "Pampa",
+      "state": "TX",
+      "zip": "79065"
+    },
+    "MONTFORD": {
+      "address": "Montford Unit, 8602 Peach Street",
+      "city": "Lubbock",
+      "state": "TX",
+      "zip": "79404"
+    },
+    "HOBBY": {
+      "address": "Hobby Unit, 742 FM 712",
+      "city": "Marlin",
+      "state": "TX",
+      "zip": "76661"
+    },
+    "CRAIN": {
+      "address": "Crain Unit, 1401 State School Road",
+      "city": "Gatesville",
+      "state": "TX",
+      "zip": "76596"
+    },
+    "LANEVILLE": {
+      "address": "Laneville Unit (see TDCJ directory for current mail)",
+      "city": "Laneville",
+      "state": "TX",
+      "zip": "75669"
+    },
+    "STEVENSON": {
+      "address": "Stevenson Unit, 1525 FM 766",
+      "city": "Cuero",
+      "state": "TX",
+      "zip": "77954"
+    },
+    "CONNALLY": {
+      "address": "Connally Unit, 899 FM 632",
+      "city": "Kenedy",
+      "state": "TX",
+      "zip": "78119"
+    },
+    "HIGHTOWER": {
+      "address": "Hightower Unit, 902 Avenue F",
+      "city": "Dayton",
+      "state": "TX",
+      "zip": "77535"
+    },
+    "GARZA": {
+      "address": "Garza West / Garza East — verify unit on TDCJ site",
+      "city": "Beeville",
+      "state": "TX",
+      "zip": "78102"
+    },
+    "DUNCAN": {
+      "address": "Duncan Unit, 1502 FM 3256",
+      "city": "Diboll",
+      "state": "TX",
+      "zip": "75941"
+    },
+    "LYNCH": {
+      "address": "Lynch Unit, 1800 FM 2296",
+      "city": "Hondo",
+      "state": "TX",
+      "zip": "78861"
+    },
+    "MICHAEL": {
+      "address": "Michael Unit, 2664 FM 2054",
+      "city": "Tennessee Colony",
+      "state": "TX",
+      "zip": "75886"
+    },
+    "CLEMENS": {
+      "address": "Clemens Unit, 11034 Highway 36",
+      "city": "Brazoria",
+      "state": "TX",
+      "zip": "77422"
+    },
+    "WALLACE": {
+      "address": "Wallace Unit, 1675 FM 352",
+      "city": "Colorado City",
+      "state": "TX",
+      "zip": "79512"
+    },
+    "SMITH": {
+      "address": "Smith Unit, 1313 CR 206",
+      "city": "Lamesa",
+      "state": "TX",
+      "zip": "79331"
+    },
+    "STILES": {
+      "address": "Stiles Unit, 3062 FM 3514",
+      "city": "Beaumont",
+      "state": "TX",
+      "zip": "77705"
+    },
+    "POWLEDGE": {
+      "address": "Powledge Unit, 1400 FM 3452",
+      "city": "Palestine",
+      "state": "TX",
+      "zip": "75803"
+    },
+    "FORMBY": {
+      "address": "Formby Unit, 998 County Road AA",
+      "city": "Plainview",
+      "state": "TX",
+      "zip": "79072"
+    },
+    "HALBERT": {
+      "address": "Halbert Unit, 800 TX-75",
+      "city": "Sheffield",
+      "state": "TX",
+      "zip": "79781"
+    },
+    "TRAVIS": {
+      "address": "Travis County State Jail, 8101 FM 969",
+      "city": "Austin",
+      "state": "TX",
+      "zip": "78724"
+    },
+    "MARLIN": {
+      "address": "Marlin Transfer Facility, 2893 State Highway 6",
+      "city": "Marlin",
+      "state": "TX",
+      "zip": "76661"
+    },
+    "HAVINS": {
+      "address": "Havins Unit, 600 FM 2282",
+      "city": "Brownwood",
+      "state": "TX",
+      "zip": "76801"
+    },
+    "HUTCHINS": {
+      "address": "Hutchins State Jail, 1500 East Langford",
+      "city": "Dallas",
+      "state": "TX",
+      "zip": "75241"
+    },
+    "MURRAY": {
+      "address": "Murray Unit, 15696 FM 2497",
+      "city": "Gatesville",
+      "state": "TX",
+      "zip": "76596"
+    },
+    "EAST TEXAS": {
+      "address": "East Texas Treatment Facility, 900 East Commerce",
+      "city": "Henderson",
+      "state": "TX",
+      "zip": "75652"
+    },
+    "W SCOTT": {
+      "address": "W. Scott Unit, 96 Recreational Road 3",
+      "city": "Colorado City",
+      "state": "TX",
+      "zip": "79512"
+    },
+    "C. MOORE": {
+      "address": "C. Moore Unit, 1700 North Farm to Market Road 87",
+      "city": "Bonham",
+      "state": "TX",
+      "zip": "75418"
+    },
+    "JOHNSTON": {
+      "address": "Johnston Unit, 906 F.M. 3497",
+      "city": "Winnsboro",
+      "state": "TX",
+      "zip": "75494"
+    },
+    "DOMINGUEZ": {
+      "address": "Dominguez Unit, 6535 Cagnon Road",
+      "city": "San Antonio",
+      "state": "TX",
+      "zip": "78252"
+    },
+    "WILLACY": {
+      "address": "Willacy County Regional Detention, 1601 Buffalo Drive",
+      "city": "Raymondville",
+      "state": "TX",
+      "zip": "78580"
+    },
+    "FORT STOCKTON": {
+      "address": "Fort Stockton Unit, 1001 U.S. Highway 285",
+      "city": "Fort Stockton",
+      "state": "TX",
+      "zip": "79735"
+    },
+    "LINDSEY": {
+      "address": "Lindsey State Jail, 12753 Highway 87",
+      "city": "Jacksboro",
+      "state": "TX",
+      "zip": "76458"
+    },
+    "MECHLER": {
+      "address": "Mechler Hall / transfer — verify on TDCJ site",
+      "city": "Huntsville",
+      "state": "TX",
+      "zip": "77320"
+    },
+    "WEST TEXAS": {
+      "address": "West Texas Hospital / transfer — verify on TDCJ site",
+      "city": "Lubbock",
+      "state": "TX",
+      "zip": "79407"
+    },
+    "C.T. TERRELL": {
+      "address": "C.T. Terrell Unit, 1300 FM 655",
+      "city": "Rosharon",
+      "state": "TX",
+      "zip": "77583"
+    }
+  },
+  "NC": {
+    "_DEFAULT": {
+      "address": "NC Department of Adult Correction — use facility-specific mail per DAC directory",
+      "city": "Raleigh",
+      "state": "NC",
+      "zip": "27601"
+    }
+  },
+  "GA": {
+    "_DEFAULT": {
+      "address": "Georgia Department of Corrections — use facility-specific mail rules per GDC institution directory",
+      "city": "Forsyth",
+      "state": "GA",
+      "zip": "31029",
+      "note": "Fallback only; confirm unit mailing address for production mail."
+    }
+  },
+  "FBOP": {
+    "_DEFAULT": {
+      "address": "Federal Bureau of Prisons — inmate mail via institution address on BOP.gov",
+      "city": "Washington",
+      "state": "DC",
+      "zip": "20534"
+    },
+    "TEX": {
+      "address": "FCI Texarkana, 4001 Leopard Drive",
+      "city": "Texarkana",
+      "state": "TX",
+      "zip": "75501"
+    },
+    "LEX": {
+      "address": "FMC Lexington, 3301 Leestown Road",
+      "city": "Lexington",
+      "state": "KY",
+      "zip": "40511"
+    },
+    "CAT": {
+      "address": "RRM Atlanta, 400 McDonough Boulevard SE",
+      "city": "Atlanta",
+      "state": "GA",
+      "zip": "30315"
+    }
+  }
+}

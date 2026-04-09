@@ -7,7 +7,19 @@ export const openai = process.env.OPENAI_API_KEY
     })
   : null
 
-export const DEFAULT_MODEL = process.env.OPENAI_MODEL || 'gpt-4-turbo-preview'
+/** Legacy preview IDs that OpenAI removed; map so old .env values still work. */
+const LEGACY_MODEL_FALLBACK: Record<string, string> = {
+  'gpt-4-turbo-preview': 'gpt-4o',
+  'gpt-4-1106-preview': 'gpt-4o',
+}
+
+function resolveDefaultModel(): string {
+  const raw = process.env.OPENAI_MODEL?.trim()
+  if (!raw) return 'gpt-4o'
+  return LEGACY_MODEL_FALLBACK[raw] ?? raw
+}
+
+export const DEFAULT_MODEL = resolveDefaultModel()
 
 // Campaign Blueprint Schema
 export interface CampaignBlueprint {

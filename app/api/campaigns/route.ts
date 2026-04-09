@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
   }
 
   const campaigns = await db.campaign.findMany({
-    where: { caseId },
+    where: { caseId, publishedToClient: true },
     orderBy: { createdAt: 'desc' },
     select: {
       id: true,
@@ -31,8 +31,30 @@ export async function GET(request: NextRequest) {
       reviewCycle: true,
       createdAt: true,
       renderedPdfUrl: true,
+      narrativeJson: true,
     },
   })
 
-  return NextResponse.json({ campaigns })
+  const out = campaigns.map((c) => {
+    let narrative: unknown = null
+    if (c.narrativeJson) {
+      try {
+        narrative = JSON.parse(c.narrativeJson)
+      } catch {
+        narrative = null
+      }
+    }
+    return {
+      id: c.id,
+      version: c.version,
+      language: c.language,
+      status: c.status,
+      reviewCycle: c.reviewCycle,
+      createdAt: c.createdAt,
+      renderedPdfUrl: c.renderedPdfUrl,
+      narrative,
+    }
+  })
+
+  return NextResponse.json({ campaigns: out })
 }

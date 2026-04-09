@@ -42,3 +42,16 @@ next-env.d.ts
 
 # uploaded files (local dev)
 /uploads
+
+# DOC roster pipeline artifacts (keep directory placeholders)
+/pipeline/cache/*
+!/pipeline/cache/.gitkeep
+/pipeline/logs/*
+!/pipeline/logs/.gitkeep
+/pipeline/output/*
+!/pipeline/output/.gitkeep
+/pipeline/data/inmate_registry.json
+
+# Python
+**/__pycache__/
+*.py[cod]

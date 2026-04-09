@@ -28,7 +28,6 @@ type CaseWithAssessment = {
   tdcjNumber: string
   unit: string | null
   status: string
-  serviceOption?: number
   createdAt: string
   updatedAt: string
   assessment: {
@@ -114,7 +113,8 @@ export default function DashboardPage() {
             <CardHeader>
               <CardTitle>Get started</CardTitle>
               <CardDescription>
-                Complete your first assessment to create a case and build your parole campaign.
+                Complete your first assessment to create a case. Parolegy staff build and publish your
+                parole campaign—you only submit information here.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -128,7 +128,8 @@ export default function DashboardPage() {
             <CardHeader>
               <CardTitle className="text-lg">My submissions</CardTitle>
               <CardDescription>
-                Your cases. Edit and click Complete to re-submit. Upload documents when ready.
+                Submit assessment answers and uploads. Staff are notified; they generate the campaign and
+                publish it to this dashboard when it is ready.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -169,9 +170,9 @@ export default function DashboardPage() {
                       <Button asChild variant="outline" size="sm">
                         <Link href="/dashboard/uploads">Upload documents</Link>
                       </Button>
-                      {c.serviceOption === 3 && c.assessment?.completedAt && c.meetsRequiredDocuments && (
-                        <Button asChild size="sm">
-                          <Link href="/dashboard/campaign">Generate campaign</Link>
+                      {c.hasCampaigns && (
+                        <Button asChild size="sm" variant="outline">
+                          <Link href="/dashboard/campaign">Parole campaign</Link>
                         </Button>
                       )}
                     </div>
@@ -182,7 +183,7 @@ export default function DashboardPage() {
           </Card>
         )}
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Progress checklist</CardTitle>
@@ -217,7 +218,7 @@ export default function DashboardPage() {
                   <span className={hasCampaign ? "text-green-500" : "text-gray-400"}>
                     {hasCampaign ? "✓" : "○"}
                   </span>
-                  <span className="text-sm">Campaign generated</span>
+                  <span className="text-sm">Campaign published to you by staff</span>
                 </li>
               </ul>
             </CardContent>
@@ -225,32 +226,13 @@ export default function DashboardPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Quick actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Button variant="outline" className="w-full justify-start" asChild>
-                <Link href="/dashboard/assessment">Complete assessment</Link>
-              </Button>
-              <Button variant="outline" className="w-full justify-start" asChild>
-                <Link href="/dashboard/uploads">Upload documents</Link>
-              </Button>
-              <Button variant="outline" className="w-full justify-start" asChild>
-                <Link href="/dashboard/campaign">View campaign</Link>
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Service option</CardTitle>
+              <CardTitle className="text-lg">How it works</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground mb-4">
-                Self-serve — AI campaign generator
+              <p className="text-sm text-muted-foreground">
+                After you submit your assessment and documents, Parolegy staff are notified. They prepare
+                your parole campaign and publish it here so you can read it when it is ready.
               </p>
-              <Button variant="outline" size="sm" disabled>
-                Change option
-              </Button>
             </CardContent>
           </Card>
         </div>

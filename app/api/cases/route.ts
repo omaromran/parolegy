@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
         select: { type: true },
       },
       campaigns: {
-        select: { id: true },
+        select: { id: true, publishedToClient: true },
       },
     },
     orderBy: { updatedAt: 'desc' },
@@ -37,14 +37,13 @@ export async function GET(request: NextRequest) {
       const meetsRequiredDocuments =
         supportCount >= REQUIRED_DOCS.SUPPORT_LETTER &&
         photoCount >= REQUIRED_DOCS.PHOTO
-      const hasCampaigns = (c.campaigns?.length ?? 0) > 0
+      const hasCampaigns = (c.campaigns ?? []).some((x) => x.publishedToClient)
       return {
         id: c.id,
         clientName: c.clientName,
         tdcjNumber: c.tdcjNumber,
         unit: c.unit,
         status: c.status,
-        serviceOption: c.serviceOption,
         createdAt: c.createdAt,
         updatedAt: c.updatedAt,
         assessment: c.assessmentResponses
