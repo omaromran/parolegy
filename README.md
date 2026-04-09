@@ -68,14 +68,14 @@ npm install
 cp .env.example .env
 ```
 
-Edit `.env` with your configuration:
+Edit `.env` with your configuration (see `.env.example`). PostgreSQL is required; use a local Docker instance or a hosted database (Neon, Supabase, etc.). On Vercel, set `DATABASE_URL` in Project → Settings → Environment Variables.
 ```env
 # Database
 DATABASE_URL="postgresql://user:password@localhost:5432/parolegy"
 
 # OpenAI
 OPENAI_API_KEY="your-openai-api-key"
-OPENAI_MODEL="gpt-4-turbo-preview"
+OPENAI_MODEL="gpt-4o"
 
 # File Storage (S3-compatible)
 STORAGE_PROVIDER="s3" # or "local" for development

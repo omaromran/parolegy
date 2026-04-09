@@ -39,6 +39,9 @@ next-env.d.ts
 /prisma/migrations
 /prisma/dev.db
 /prisma/dev.db-journal
+# legacy local SQLite (if still present)
+dev.db
+dev.db-journal
 
 # uploaded files (local dev)
 /uploads
