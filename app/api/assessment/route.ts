@@ -44,11 +44,17 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const { caseId, responses } = body as { caseId?: string; responses: Record<string, unknown> }
+    const { caseId, responses, complete } = body as {
+      caseId?: string
+      responses: Record<string, unknown>
+      complete?: boolean
+    }
 
     if (!responses || typeof responses !== 'object') {
       return NextResponse.json({ error: 'responses required' }, { status: 400 })
     }
+
+    const isFinalSubmit = complete === true
 
     const tdcjNumber = String(responses.tdcj_number ?? '').trim()
     const unit = String(responses.unit ?? '').trim()
@@ -83,33 +89,38 @@ export async function POST(request: NextRequest) {
         },
       })
 
+      const wasAlreadyCompleted = !!caseRecord.assessmentResponses?.completedAt
+      const responsesJson = JSON.stringify(responses)
+
       if (caseRecord.assessmentResponses) {
         await db.assessmentResponse.update({
           where: { caseId },
           data: {
-            responses: JSON.stringify(responses),
-            rawData: JSON.stringify(responses),
-            completedAt: new Date(),
+            responses: responsesJson,
+            rawData: responsesJson,
+            ...(isFinalSubmit ? { completedAt: new Date() } : {}),
           },
         })
       } else {
         await db.assessmentResponse.create({
           data: {
             caseId,
-            responses: JSON.stringify(responses),
-            rawData: JSON.stringify(responses),
-            completedAt: new Date(),
+            responses: responsesJson,
+            rawData: responsesJson,
+            completedAt: isFinalSubmit ? new Date() : null,
           },
         })
       }
 
-      sendAssessmentSubmittedNotification({
-        caseId,
-        clientName,
-        tdcjNumber: tdcjNumber || caseRecord.tdcjNumber,
-        userEmail: user.email,
-        userName: user.name,
-      }).catch((err) => console.error('Assessment notification email failed:', err))
+      if (isFinalSubmit && !wasAlreadyCompleted) {
+        sendAssessmentSubmittedNotification({
+          caseId,
+          clientName,
+          tdcjNumber: tdcjNumber || caseRecord.tdcjNumber,
+          userEmail: user.email,
+          userName: user.name,
+        }).catch((err) => console.error('Assessment notification email failed:', err))
+      }
 
       return NextResponse.json({ success: true, caseId })
     }
@@ -140,17 +151,19 @@ export async function POST(request: NextRequest) {
         caseId: newCase.id,
         responses: JSON.stringify(responses),
         rawData: JSON.stringify(responses),
-        completedAt: new Date(),
+        completedAt: isFinalSubmit ? new Date() : null,
       },
     })
 
-    sendAssessmentSubmittedNotification({
-      caseId: newCase.id,
-      clientName: newCase.clientName,
-      tdcjNumber: newCase.tdcjNumber,
-      userEmail: user.email,
-      userName: user.name,
-    }).catch((err) => console.error('Assessment notification email failed:', err))
+    if (isFinalSubmit) {
+      sendAssessmentSubmittedNotification({
+        caseId: newCase.id,
+        clientName: newCase.clientName,
+        tdcjNumber: newCase.tdcjNumber,
+        userEmail: user.email,
+        userName: user.name,
+      }).catch((err) => console.error('Assessment notification email failed:', err))
+    }
 
     return NextResponse.json({ success: true, caseId: newCase.id })
   } catch (error) {

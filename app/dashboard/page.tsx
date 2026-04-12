@@ -8,6 +8,8 @@ import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { formatDateShort } from "@/lib/utils"
 import { useAuth } from "@/hooks/use-auth"
+import { useToast } from "@/hooks/use-toast"
+import { Trash2 } from "lucide-react"
 
 const statusLabels: Record<string, string> = {
   DRAFT: "Draft",
@@ -42,9 +44,11 @@ type CaseWithAssessment = {
 
 export default function DashboardPage() {
   const router = useRouter()
+  const { toast } = useToast()
   const { user, isLoading, logout } = useAuth()
   const [cases, setCases] = useState<CaseWithAssessment[]>([])
   const [casesLoading, setCasesLoading] = useState(true)
+  const [deletingCaseId, setDeletingCaseId] = useState<string | null>(null)
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -78,6 +82,32 @@ export default function DashboardPage() {
   const submissions = cases.filter((c) => c.assessment?.completedAt)
   const hasRequiredDocuments = cases.some((c) => c.meetsRequiredDocuments === true)
   const hasCampaign = cases.some((c) => c.hasCampaigns === true)
+
+  const handleDeleteCase = async (caseId: string, clientName: string) => {
+    const ok = window.confirm(
+      `Delete the case for ${clientName}? This permanently removes the assessment, uploaded documents, and any campaigns for this case. This cannot be undone.`
+    )
+    if (!ok) return
+
+    setDeletingCaseId(caseId)
+    try {
+      const res = await fetch(`/api/cases/${caseId}`, { method: "DELETE" })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        throw new Error(typeof data.error === "string" ? data.error : "Failed to delete case")
+      }
+      setCases((prev) => prev.filter((c) => c.id !== caseId))
+      toast({ title: "Case deleted" })
+    } catch (e) {
+      toast({
+        title: "Could not delete case",
+        description: e instanceof Error ? e.message : "Something went wrong",
+        variant: "destructive",
+      })
+    } finally {
+      setDeletingCaseId(null)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -175,6 +205,23 @@ export default function DashboardPage() {
                           <Link href="/dashboard/campaign">Parole campaign</Link>
                         </Button>
                       )}
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        disabled={deletingCaseId === c.id}
+                        title="Delete this case"
+                        aria-label={
+                          deletingCaseId === c.id ? "Deleting case" : "Delete case"
+                        }
+                        onClick={() => handleDeleteCase(c.id, c.clientName)}
+                      >
+                        <Trash2 className="h-4 w-4 sm:mr-1" aria-hidden />
+                        <span className="hidden sm:inline">
+                          {deletingCaseId === c.id ? "Deleting…" : "Delete case"}
+                        </span>
+                      </Button>
                     </div>
                   </li>
                 ))}

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import Link from "next/link"
+import { useToast } from "@/hooks/use-toast"
 
 // Assessment sections based on the 16-page assessment
 const sections = [
@@ -171,6 +172,7 @@ const TEST_DATA: Record<string, string | number> = {
 function AssessmentPageInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { toast } = useToast()
   const caseId = searchParams.get("caseId")
 
   const [currentSection, setCurrentSection] = useState(0)
@@ -208,10 +210,33 @@ function AssessmentPageInner() {
 
   const handleSave = async () => {
     setIsSaving(true)
-    // TODO: Implement save to database
-    await new Promise(resolve => setTimeout(resolve, 500))
-    setIsSaving(false)
-    alert("Progress saved!")
+    try {
+      const res = await fetch("/api/assessment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...(caseId ? { caseId } : {}),
+          responses,
+          complete: false,
+        }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        throw new Error(typeof data.error === "string" ? data.error : "Failed to save progress")
+      }
+      if (data.caseId && typeof data.caseId === "string" && !caseId) {
+        router.replace(`/dashboard/assessment?caseId=${encodeURIComponent(data.caseId)}`)
+      }
+      toast({ title: "Progress saved", description: "You can leave and come back anytime." })
+    } catch (e) {
+      toast({
+        title: "Could not save",
+        description: e instanceof Error ? e.message : "Something went wrong",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const handleNext = () => {
@@ -254,6 +279,7 @@ function AssessmentPageInner() {
         body: JSON.stringify({
           ...(caseId ? { caseId } : {}),
           responses,
+          complete: true,
         }),
       })
       const data = await res.json()
@@ -261,7 +287,11 @@ function AssessmentPageInner() {
       router.push("/dashboard")
       return
     } catch (e) {
-      alert(e instanceof Error ? e.message : "Failed to save assessment.")
+      toast({
+        title: "Could not submit",
+        description: e instanceof Error ? e.message : "Failed to save assessment.",
+        variant: "destructive",
+      })
     } finally {
       setIsSaving(false)
     }
