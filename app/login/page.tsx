@@ -38,12 +38,13 @@ export default function LoginPage() {
         description: "Logged in successfully",
       })
 
-      // Redirect based on role
-      if (data.user.role === 'ADMIN' || data.user.role === 'STAFF') {
-        router.push('/admin')
-      } else {
-        router.push('/dashboard')
-      }
+      const next =
+        typeof data.redirectTo === "string"
+          ? data.redirectTo
+          : data.user.role === "ADMIN" || data.user.role === "STAFF"
+            ? "/admin"
+            : "/dashboard"
+      router.push(next)
     } catch (error: any) {
       toast({
         title: "Error",

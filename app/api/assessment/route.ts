@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth-api'
 import { db } from '@/lib/db'
-import { sendAssessmentSubmittedNotification } from '@/lib/email'
+import {
+  sendAssessmentSubmittedNotification,
+  sendAssessmentReceivedClientEmail,
+} from '@/lib/email'
 
 export async function GET(request: NextRequest) {
   const user = await getCurrentUser(request)
@@ -63,7 +66,10 @@ export async function POST(request: NextRequest) {
     if (caseId) {
       const caseRecord = await db.case.findFirst({
         where: { id: caseId, userId: user.id },
-        include: { assessmentResponses: true },
+        include: {
+          assessmentResponses: true,
+          user: { select: { email: true, name: true } },
+        },
       })
       if (!caseRecord) {
         return NextResponse.json({ error: 'Case not found' }, { status: 404 })
@@ -113,13 +119,24 @@ export async function POST(request: NextRequest) {
       }
 
       if (isFinalSubmit && !wasAlreadyCompleted) {
+        const origin = request.nextUrl.origin
         sendAssessmentSubmittedNotification({
           caseId,
           clientName,
           tdcjNumber: tdcjNumber || caseRecord.tdcjNumber,
           userEmail: user.email,
           userName: user.name,
+          origin,
         }).catch((err) => console.error('Assessment notification email failed:', err))
+        const notifyTo = caseRecord.user?.email || user.email
+        sendAssessmentReceivedClientEmail({
+          to: notifyTo,
+          name: caseRecord.user?.name ?? user.name,
+          clientName,
+          origin,
+        }).catch((err) =>
+          console.error('Assessment received client email failed:', err)
+        )
       }
 
       return NextResponse.json({ success: true, caseId })
@@ -156,13 +173,23 @@ export async function POST(request: NextRequest) {
     })
 
     if (isFinalSubmit) {
+      const origin = request.nextUrl.origin
       sendAssessmentSubmittedNotification({
         caseId: newCase.id,
         clientName: newCase.clientName,
         tdcjNumber: newCase.tdcjNumber,
         userEmail: user.email,
         userName: user.name,
+        origin,
       }).catch((err) => console.error('Assessment notification email failed:', err))
+      sendAssessmentReceivedClientEmail({
+        to: user.email,
+        name: user.name,
+        clientName: newCase.clientName,
+        origin,
+      }).catch((err) =>
+        console.error('Assessment received client email failed:', err)
+      )
     }
 
     return NextResponse.json({ success: true, caseId: newCase.id })

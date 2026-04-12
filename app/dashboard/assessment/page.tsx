@@ -251,24 +251,43 @@ function AssessmentPageInner() {
     }
   }
 
-  const allRequiredFilled = () => {
+  /** Empty: missing, null, or whitespace-only string. Numbers (e.g. 0) count as filled. */
+  const isRequiredValueEmpty = (val: unknown): boolean => {
+    if (val === undefined || val === null) return true
+    if (typeof val === "string") return val.trim() === ""
+    if (typeof val === "number") return false
+    return String(val).trim() === ""
+  }
+
+  const getMissingRequiredLabels = (): string[] => {
+    const missing: string[] = []
     for (const section of sections) {
       for (const q of section.questions) {
-        if (q.required) {
-          const val = responses[q.id]
-          if (val === undefined || val === null || String(val).trim() === "") return false
+        if (q.required && isRequiredValueEmpty(responses[q.id])) {
+          missing.push(q.label)
         }
       }
     }
-    return true
+    return missing
   }
 
   const isLastSection = currentSection === sections.length - 1
-  const canComplete = isLastSection && allRequiredFilled()
 
   const handleComplete = async () => {
     if (!isLastSection) {
       handleNext()
+      return
+    }
+    const missing = getMissingRequiredLabels()
+    if (missing.length > 0) {
+      toast({
+        title: "Required fields incomplete",
+        description:
+          missing.length <= 5
+            ? `Please fill: ${missing.join("; ")}`
+            : `Please fill all required fields (${missing.length} still empty). Use Previous to review earlier sections.`,
+        variant: "destructive",
+      })
       return
     }
     setIsSaving(true)
@@ -282,10 +301,9 @@ function AssessmentPageInner() {
           complete: true,
         }),
       })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || "Failed to save")
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(typeof data.error === "string" ? data.error : "Failed to save")
       router.push("/dashboard")
-      return
     } catch (e) {
       toast({
         title: "Could not submit",
@@ -385,7 +403,11 @@ function AssessmentPageInner() {
                   ) : (
                     <Input
                       type={question.type}
-                      value={responses[question.id] || ""}
+                      value={
+                        responses[question.id] === undefined || responses[question.id] === null
+                          ? ""
+                          : String(responses[question.id])
+                      }
                       onChange={(e) => handleInputChange(question.id, e.target.value)}
                       required={question.required}
                     />
@@ -396,22 +418,14 @@ function AssessmentPageInner() {
           </Card>
 
           <div className="mt-6 flex justify-between">
-            <Button variant="outline" onClick={handlePrevious} disabled={currentSection === 0}>
+            <Button type="button" variant="outline" onClick={handlePrevious} disabled={currentSection === 0}>
               Previous
             </Button>
             <div className="flex gap-4">
-              <Button variant="outline" onClick={handleSave} disabled={isSaving}>
+              <Button type="button" variant="outline" onClick={handleSave} disabled={isSaving}>
                 {isSaving ? "Saving..." : "Save Progress"}
               </Button>
-              <Button
-                onClick={handleComplete}
-                disabled={isLastSection ? !canComplete : false}
-                title={
-                  isLastSection && !canComplete
-                    ? "Required fields must be filled on every section. Use Previous to review."
-                    : undefined
-                }
-              >
+              <Button type="button" onClick={handleComplete} disabled={isSaving}>
                 {isLastSection ? "Complete" : "Next"}
               </Button>
             </div>

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireRole } from '@/lib/middleware'
 import { db } from '@/lib/db'
 import { resolveCampaignRouteId } from '@/lib/route-params'
+import { sendCampaignPublishedClientEmail } from '@/lib/email'
 
 export const GET = requireRole(['ADMIN', 'STAFF'])(
   async (
@@ -95,15 +96,38 @@ export const PATCH = requireRole(['ADMIN', 'STAFF'])(
         )
       }
 
-      const existing = await db.campaign.findFirst({ where: { id } })
+      const existing = await db.campaign.findFirst({
+        where: { id },
+        include: {
+          case: {
+            include: {
+              user: { select: { email: true, name: true } },
+            },
+          },
+        },
+      })
       if (!existing) {
         return NextResponse.json({ error: 'Campaign not found' }, { status: 404 })
       }
+
+      const wasPublished = existing.publishedToClient
 
       await db.campaign.update({
         where: { id },
         data: { publishedToClient },
       })
+
+      if (publishedToClient && !wasPublished && existing.case.user?.email) {
+        const origin = req.nextUrl.origin
+        sendCampaignPublishedClientEmail({
+          to: existing.case.user.email,
+          name: existing.case.user.name,
+          clientName: existing.case.clientName,
+          origin,
+        }).catch((err) =>
+          console.error('Campaign published client email failed:', err)
+        )
+      }
 
       return NextResponse.json({ success: true, publishedToClient })
     } catch (error) {

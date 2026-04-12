@@ -7,6 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { Phone, Mail, MapPin, Clock, Inbox } from "lucide-react"
+import { SITE_CONTACT, mapsUrlOffice } from "@/lib/site-contact"
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -20,8 +22,7 @@ export default function ContactPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    // TODO: Implement contact form submission
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise((resolve) => setTimeout(resolve, 1000))
     alert("Thank you for your message. We'll get back to you soon!")
     setFormData({ name: "", email: "", phone: "", message: "" })
     setIsSubmitting(false)
@@ -30,26 +31,116 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 container py-16 md:py-24">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="font-serif text-4xl md:text-5xl font-bold mb-4 text-center">
-            Contact Us
-          </h1>
-          <p className="text-center text-muted-foreground mb-12">
-            Get in touch with our team. We&apos;re here to help.
-          </p>
-          <div className="grid md:grid-cols-2 gap-8">
-            <Card>
+      <main className="flex-1">
+        <div className="border-b bg-muted/40 py-12 md:py-16">
+          <div className="container max-w-4xl">
+            <h1 className="font-serif text-4xl font-bold md:text-5xl">Contact Parolegy</h1>
+            <p className="mt-4 max-w-2xl text-muted-foreground">
+              The fastest way to reach us is by phone or email. There is no charge for the initial
+              assessment call—we use it to understand your situation and whether we are the right team to
+              help.
+            </p>
+          </div>
+        </div>
+
+        <div className="container py-12 md:py-16">
+          <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-5">
+            <div className="space-y-6 lg:col-span-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="font-serif text-xl">Call us</CardTitle>
+                  <CardDescription>
+                    Speak with a live representative. If you cannot find an answer in our FAQ, call or
+                    email—we respond as quickly as we can.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex gap-3">
+                    <Phone className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden />
+                    <div>
+                      <a href={`tel:${SITE_CONTACT.phoneTel}`} className="text-lg font-semibold hover:underline">
+                        {SITE_CONTACT.phoneDisplay}
+                      </a>
+                      <p className="text-sm text-muted-foreground">Press 0 to reach a live representative</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <Mail className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden />
+                    <div>
+                      <a
+                        href={`mailto:${SITE_CONTACT.emailPrimary}`}
+                        className="font-medium hover:underline"
+                      >
+                        {SITE_CONTACT.emailPrimary}
+                      </a>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <Clock className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden />
+                    <p className="text-sm text-muted-foreground">{SITE_CONTACT.hours}</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="font-serif text-xl">Office</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex gap-3">
+                    <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden />
+                    <address className="not-italic text-sm leading-relaxed">
+                      {SITE_CONTACT.office.name}
+                      <br />
+                      {SITE_CONTACT.office.street}
+                      <br />
+                      {SITE_CONTACT.office.cityStateZip}
+                      <br />
+                      {SITE_CONTACT.office.country}
+                    </address>
+                  </div>
+                  <Button variant="outline" size="sm" asChild>
+                    <a href={mapsUrlOffice()} target="_blank" rel="noopener noreferrer">
+                      Directions in Google Maps
+                    </a>
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="font-serif text-xl">Mailing address (paperwork)</CardTitle>
+                  <CardDescription>
+                    Completed paperwork and materials may be mailed here. Email is preferred when
+                    possible.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex gap-3">
+                    <Inbox className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden />
+                    <address className="not-italic text-sm leading-relaxed">
+                      {SITE_CONTACT.mailing.line1}
+                      <br />
+                      {SITE_CONTACT.mailing.line2}
+                      <br />
+                      {SITE_CONTACT.mailing.line3}
+                    </address>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card className="lg:col-span-3">
               <CardHeader>
-                <CardTitle>Get in Touch</CardTitle>
+                <CardTitle className="font-serif text-xl">Send a message</CardTitle>
                 <CardDescription>
-                  Fill out the form or use the contact information below.
+                  Prefer to write first? Use this form and we will follow up by email or phone.
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
-                    <label htmlFor="name" className="text-sm font-medium mb-2 block">
+                    <label htmlFor="name" className="mb-2 block text-sm font-medium">
                       Name
                     </label>
                     <Input
@@ -57,10 +148,11 @@ export default function ContactPage() {
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       required
+                      autoComplete="name"
                     />
                   </div>
                   <div>
-                    <label htmlFor="email" className="text-sm font-medium mb-2 block">
+                    <label htmlFor="email" className="mb-2 block text-sm font-medium">
                       Email
                     </label>
                     <Input
@@ -69,22 +161,24 @@ export default function ContactPage() {
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       required
+                      autoComplete="email"
                     />
                   </div>
                   <div>
-                    <label htmlFor="phone" className="text-sm font-medium mb-2 block">
-                      Phone (Optional)
+                    <label htmlFor="phone" className="mb-2 block text-sm font-medium">
+                      Phone <span className="font-normal text-muted-foreground">(optional)</span>
                     </label>
                     <Input
                       id="phone"
                       type="tel"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      autoComplete="tel"
                     />
                   </div>
                   <div>
-                    <label htmlFor="message" className="text-sm font-medium mb-2 block">
-                      Message
+                    <label htmlFor="message" className="mb-2 block text-sm font-medium">
+                      How can we help?
                     </label>
                     <Textarea
                       id="message"
@@ -92,52 +186,15 @@ export default function ContactPage() {
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                       required
                       rows={6}
+                      placeholder="TDCJ number, review timing, and a short summary help us respond faster."
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={isSubmitting}>
-                    {isSubmitting ? "Sending..." : "Send Message"}
+                  <Button type="submit" className="w-full sm:w-auto" disabled={isSubmitting}>
+                    {isSubmitting ? "Sending…" : "Send message"}
                   </Button>
                 </form>
               </CardContent>
             </Card>
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Contact Information</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <p className="text-sm font-medium mb-1">Email</p>
-                    <a href="mailto:ebonie@parolegy.com" className="text-sm text-primary hover:underline">
-                      ebonie@parolegy.com
-                    </a>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium mb-1">Phone</p>
-                    <p className="text-sm text-muted-foreground">Contact for phone number</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium mb-1">Mailing Address</p>
-                    <p className="text-sm text-muted-foreground">PO Box (Contact for address)</p>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Schedule a Consultation</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Want to talk through how Parolegy works for your case? Schedule a call with our team.
-                  </p>
-                  <Button className="w-full" asChild>
-                    <a href="mailto:ebonie@parolegy.com?subject=Consultation Request">
-                      Request Consultation
-                    </a>
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
           </div>
         </div>
       </main>

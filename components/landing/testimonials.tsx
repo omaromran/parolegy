@@ -6,55 +6,49 @@ import { Button } from "@/components/ui/button"
 
 const testimonials = [
   {
-    quote: "Parolegy helped us create a campaign that truly represented my brother's transformation. The attention to detail and understanding of what panels need to see made all the difference.",
-    author: "Family Member",
-    rating: 5,
+    quote:
+      "They understand the Texas Board of Pardons and Paroles in depth—what the process expects and how to prepare. We felt guided instead of overwhelmed.",
+    author: "Family member",
   },
   {
-    quote: "The team at Parolegy understood our situation and helped us present our case professionally. We're grateful for their expertise and compassion.",
-    author: "Family Member",
-    rating: 5,
+    quote:
+      "Professional, clear, and patient when other places had rushed us off the phone. For the first time we understood what would actually help our loved one’s file.",
+    author: "Family member",
   },
   {
-    quote: "Working with Parolegy gave us confidence that we were presenting the best possible case. Their guidance through the process was invaluable.",
-    author: "Family Member",
-    rating: 5,
-  },
-  {
-    quote: "The campaign booklet they created was professional and comprehensive. It addressed all the concerns we were worried about.",
-    author: "Family Member",
-    rating: 5,
+    quote:
+      "Navigating parole is isolating. Having a team that treated our family with respect—and knew the details that matter in review—made the difference for us.",
+    author: "Family member",
   },
 ]
 
 export function Testimonials() {
   return (
-    <section className="container py-16 md:py-24">
-      <div className="mx-auto max-w-6xl">
-        <h2 className="font-serif text-4xl md:text-5xl font-bold text-center mb-4">
-          What Families Say
+    <section className="border-t bg-muted/30 py-16 md:py-24" aria-labelledby="testimonials-heading">
+      <div className="container mx-auto max-w-6xl">
+        <h2 id="testimonials-heading" className="text-center font-serif text-3xl font-bold md:text-4xl lg:text-5xl">
+          What families say
         </h2>
-        <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-          Real feedback from families who have worked with Parolegy.
+        <p className="mx-auto mt-4 max-w-2xl text-center text-muted-foreground">
+          Many families prefer private thank-you notes to public posts—we respect that. When people do
+          share publicly, their stories often focus on clarity, responsiveness, and how it felt to have
+          experienced help with a discretionary process.
         </p>
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
-          {testimonials.map((testimonial, index) => (
-            <Card key={index}>
+        <div className="mt-12 grid gap-6 md:grid-cols-3">
+          {testimonials.map((t) => (
+            <Card key={t.author + t.quote.slice(0, 24)}>
               <CardContent className="pt-6">
-                <div className="flex gap-1 mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <span key={i} className="text-yellow-500">★</span>
-                  ))}
-                </div>
-                <p className="text-muted-foreground mb-4 italic">&quot;{testimonial.quote}&quot;</p>
-                <p className="text-sm font-medium">— {testimonial.author}</p>
+                <blockquote className="text-base leading-relaxed text-foreground">
+                  &ldquo;{t.quote}&rdquo;
+                </blockquote>
+                <p className="mt-4 text-sm font-medium text-muted-foreground">— {t.author}</p>
               </CardContent>
             </Card>
           ))}
         </div>
-        <div className="text-center">
+        <div className="mt-10 text-center">
           <Button variant="outline" asChild>
-            <Link href="/testimonials">Read More Testimonials</Link>
+            <Link href="/testimonials">More testimonials</Link>
           </Button>
         </div>
       </div>

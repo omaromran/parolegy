@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { SITE_CONTACT } from "@/lib/site-contact"
 
 const languages = [
   "English", "Spanish", "French", "Hindi", "Urdu", "Arabic", "Vietnamese",
@@ -13,12 +14,30 @@ export function Footer() {
           <div>
             <h3 className="font-serif text-xl font-bold mb-4">Parolegy</h3>
             <p className="text-sm text-muted-foreground">
-              Founded 2017. Helping families present their plan, not their past.
+              Founded 2017. Parole campaign preparation for Texas families—focused, documented, and
+              aligned with how review actually works.
+            </p>
+            <p className="mt-4 text-sm text-muted-foreground">
+              <a href={`tel:${SITE_CONTACT.phoneTel}`} className="hover:text-primary">
+                {SITE_CONTACT.phoneDisplay}
+              </a>
+              <span className="mx-1 text-border">·</span>
+              <a href={`mailto:${SITE_CONTACT.emailPrimary}`} className="hover:text-primary">
+                {SITE_CONTACT.emailPrimary}
+              </a>
+            </p>
+            <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+              {SITE_CONTACT.office.street}, {SITE_CONTACT.office.cityStateZip}
             </p>
           </div>
           <div>
             <h4 className="font-semibold mb-4">Company</h4>
             <ul className="space-y-2 text-sm">
+              <li>
+                <Link href="/pricing" className="text-muted-foreground hover:text-primary">
+                  Pricing
+                </Link>
+              </li>
               <li>
                 <Link href="/about" className="text-muted-foreground hover:text-primary">
                   About
@@ -37,6 +56,11 @@ export function Footer() {
               <li>
                 <Link href="/contact" className="text-muted-foreground hover:text-primary">
                   Contact
+                </Link>
+              </li>
+              <li>
+                <Link href="/faq" className="text-muted-foreground hover:text-primary">
+                  FAQ
                 </Link>
               </li>
             </ul>

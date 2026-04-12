@@ -8,6 +8,24 @@ import { Textarea } from "@/components/ui/textarea"
 import Link from "next/link"
 import { Upload, File as FileIcon, X, Download, ExternalLink, Image as ImageIcon, PenLine } from "lucide-react"
 
+/** Support letters: PDF, images, Word, Excel, CSV (matches server storage; campaign text extraction is best for PDF/images/txt). */
+const SUPPORT_LETTER_ACCEPT = [
+  "image/*",
+  "application/pdf",
+  ".pdf",
+  "application/msword",
+  ".doc",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  ".docx",
+  "application/vnd.ms-excel",
+  ".xls",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  ".xlsx",
+  "text/csv",
+  "application/csv",
+  ".csv",
+].join(",")
+
 const documentTypes = [
   { id: "SUPPORT_LETTER", label: "Support Letter", min: 3, max: 10 },
   { id: "PHOTO", label: "Photo", min: 10, max: 20 },
@@ -365,11 +383,17 @@ export default function UploadsPage() {
                   <CardContent>
                     <div className="space-y-4">
                       <div className="flex items-center gap-4">
-                        <label className="cursor-pointer">
+                        <label className="cursor-pointer inline-flex flex-col gap-1">
                           <input
                             type="file"
                             multiple
-                            accept={docType.id === "PHOTO" ? "image/*" : "application/pdf,image/*"}
+                            accept={
+                              docType.id === "PHOTO"
+                                ? "image/*"
+                                : docType.id === "SUPPORT_LETTER"
+                                  ? SUPPORT_LETTER_ACCEPT
+                                  : "application/pdf,image/*,.pdf"
+                            }
                             onChange={(e) => handleFileSelect(docType.id, e.target.files)}
                             className="hidden"
                           />
@@ -379,6 +403,11 @@ export default function UploadsPage() {
                               Choose Files
                             </span>
                           </Button>
+                          {docType.id === "SUPPORT_LETTER" && (
+                            <span className="text-xs text-muted-foreground max-w-md">
+                              PDF, photos, Word (.doc/.docx), Excel (.xls/.xlsx), or CSV.
+                            </span>
+                          )}
                         </label>
                       </div>
                       {docType.id === "SUPPORT_LETTER" && (

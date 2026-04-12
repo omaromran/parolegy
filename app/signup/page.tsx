@@ -65,10 +65,11 @@ export default function SignupPage() {
 
       toast({
         title: "Success",
-        description: "Account created. You can complete your assessment and uploads next.",
+        description: "Check your email to verify your address, then continue onboarding.",
       })
 
-      router.push("/dashboard")
+      const next = typeof data.redirectTo === "string" ? data.redirectTo : "/onboarding"
+      router.push(next)
     } catch (error: any) {
       toast({
         title: "Error",

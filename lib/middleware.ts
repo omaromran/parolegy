@@ -14,7 +14,12 @@ export async function getAuthUser(request: NextRequest) {
     }
 
     const { payload } = await jwtVerify(token, secret)
-    return payload as { userId: string; email: string; role: string }
+    return payload as {
+      userId: string
+      email: string
+      role: string
+      hasPaidAccess?: boolean
+    }
   } catch {
     return null
   }

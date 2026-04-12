@@ -36,6 +36,8 @@ async function main() {
         name,
         passwordHash,
         role: 'ADMIN',
+        hasPaidAccess: true,
+        emailVerified: new Date(),
       },
     })
 

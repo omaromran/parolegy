@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { authenticateUser } from '@/lib/auth'
-import { SignJWT } from 'jose'
-
-const secret = new TextEncoder().encode(
-  process.env.NEXTAUTH_SECRET || 'your-secret-key-change-in-production'
-)
+import { jwtClaimsForUser, signAuthJwt } from '@/lib/auth-token'
+import { paymentConfigured } from '@/lib/payment-configured'
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,26 +16,29 @@ export async function POST(request: NextRequest) {
     }
 
     const user = await authenticateUser(email, password)
+    const claims = jwtClaimsForUser(user)
+    const token = await signAuthJwt(claims)
+    const enforcePayment = paymentConfigured()
+    const isPortal = user.role === 'CLIENT' || user.role === 'FAMILY'
+    const needsOnboarding =
+      enforcePayment && isPortal && !claims.hasPaidAccess
 
-    // Create JWT token
-    const token = await new SignJWT({
-      userId: user.id,
-      email: user.email,
-      role: user.role,
-    })
-      .setProtectedHeader({ alg: 'HS256' })
-      .setIssuedAt()
-      .setExpirationTime('7d')
-      .sign(secret)
-
-    // Set cookie
     const response = NextResponse.json({
       success: true,
+      requiresPayment: enforcePayment,
+      redirectTo:
+        user.role === 'ADMIN' || user.role === 'STAFF'
+          ? '/admin'
+          : needsOnboarding
+            ? '/onboarding'
+            : '/dashboard',
       user: {
         id: user.id,
         email: user.email,
         name: user.name,
         role: user.role,
+        hasPaidAccess: claims.hasPaidAccess,
+        emailVerified: user.emailVerified != null,
       },
     })
 
@@ -46,15 +46,13 @@ export async function POST(request: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7, // 7 days
+      maxAge: 60 * 60 * 24 * 7,
     })
 
     return response
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Login error:', error)
-    return NextResponse.json(
-      { error: error.message || 'Invalid credentials' },
-      { status: 401 }
-    )
+    const message = error instanceof Error ? error.message : 'Invalid credentials'
+    return NextResponse.json({ error: message }, { status: 401 })
   }
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { jwtVerify } from 'jose'
 import { db } from '@/lib/db'
+import { paymentConfigured } from '@/lib/payment-configured'
 
 const secret = new TextEncoder().encode(
   process.env.NEXTAUTH_SECRET || 'your-secret-key-change-in-production'
@@ -25,6 +26,9 @@ export async function GET(request: NextRequest) {
         name: true,
         role: true,
         language: true,
+        hasPaidAccess: true,
+        emailVerified: true,
+        consultationBookedAt: true,
       },
     })
 
@@ -32,8 +36,23 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    return NextResponse.json({ user })
-  } catch (error) {
+    const staff = user.role === 'ADMIN' || user.role === 'STAFF'
+    const effectivePaid =
+      staff || !paymentConfigured() || user.hasPaidAccess
+
+    return NextResponse.json({
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        language: user.language,
+        hasPaidAccess: effectivePaid,
+        emailVerified: user.emailVerified != null,
+        consultationBookedAt: user.consultationBookedAt?.toISOString() ?? null,
+      },
+    })
+  } catch {
     return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
   }
 }

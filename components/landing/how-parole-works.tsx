@@ -1,48 +1,58 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+
+const points = [
+  {
+    title: "Parole is a privilege",
+    description:
+      "Not a right. Texas parole is discretionary, determined through administrative review—not a courtroom hearing where you argue live before a judge.",
+  },
+  {
+    title: "Minutes, not hours",
+    description:
+      "Panel members may spend roughly 7–10 minutes with each file. Your written packet and campaign narrative have to work immediately—there is little room for buried context.",
+  },
+  {
+    title: "What they actually read",
+    description:
+      "DA summaries, victim impact materials, criminal history, TDCJ conduct and programming, indicators of support—and any parole packet or campaign your team submits.",
+  },
+  {
+    title: "Your written case is the hearing",
+    description:
+      "Without a traditional hearing, your documents are often the clearest statement of accountability, stability, and plan. That is where Parolegy concentrates the work.",
+  },
+]
 
 export function HowParoleWorks() {
   return (
-    <section className="container py-16 md:py-24 bg-muted/50">
-      <div className="mx-auto max-w-4xl">
-        <h2 className="font-serif text-4xl md:text-5xl font-bold text-center mb-4">
-          How Parole Works in Texas
-        </h2>
-        <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-          Understanding the process helps you prepare effectively.
-        </p>
-        <div className="grid md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Parole is a Privilege</CardTitle>
-              <CardDescription>
-                Not a right. Texas parole is discretionary, determined by a review process—not a court hearing.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>7–10 Minutes Per Case</CardTitle>
-              <CardDescription>
-                Panel members spend approximately 7–10 minutes reviewing each case. Your written materials must make an immediate impact.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>What They Review</CardTitle>
-              <CardDescription>
-                DA offense info, victim impact statements, criminal history, TDCJ conduct/programming, support network indicators, and any packet/campaign submitted.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Focus on Written Material</CardTitle>
-              <CardDescription>
-                Since there&apos;s no hearing, your campaign booklet is your primary opportunity to demonstrate readiness, accountability, and a safe reentry plan.
-              </CardDescription>
-            </CardHeader>
-          </Card>
+    <section
+      className="border-y bg-muted/40 py-16 md:py-24"
+      aria-labelledby="how-parole-heading"
+    >
+      <div className="container">
+        <div className="mx-auto max-w-4xl">
+          <h2
+            id="how-parole-heading"
+            className="text-center font-serif text-3xl font-bold md:text-4xl lg:text-5xl"
+          >
+            How parole review works in Texas
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-center text-muted-foreground">
+            When you understand the constraints families are working inside, it is easier to see why
+            preparation, framing, and documentation matter as much as they do.
+          </p>
+          <div className="mt-12 grid gap-6 md:grid-cols-2">
+            {points.map((item) => (
+              <Card key={item.title}>
+                <CardHeader>
+                  <CardTitle className="font-serif text-lg">{item.title}</CardTitle>
+                  <CardDescription className="text-base leading-relaxed">
+                    {item.description}
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            ))}
+          </div>
         </div>
       </div>
     </section>

@@ -7,6 +7,7 @@ import {
   getLlmGuidelinesForPrompt,
 } from '@/lib/knowledge-hub'
 import type { ParoleCampaignNarrative } from '@/lib/parole-narrative'
+import { extractSupportLetterTexts } from '@/lib/support-letter-extraction'
 
 const REQUIRED_DOCS = { SUPPORT_LETTER: 3, PHOTO: 10 }
 
@@ -75,6 +76,8 @@ export async function generateCampaignForCase(caseId: string): Promise<{
     fileName: d.fileName,
   }))
 
+  const supportLetters = await extractSupportLetterTexts(caseData.documents)
+
   const narrative = await generateParoleCampaignNarrative(
     assessmentPayload,
     docRefs,
@@ -83,7 +86,8 @@ export async function generateCampaignForCase(caseId: string): Promise<{
     {
       clientName: caseData.clientName,
       tdcjNumber: caseData.tdcjNumber,
-    }
+    },
+    supportLetters
   )
 
   const blueprint = normalizeBlueprint({})

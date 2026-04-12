@@ -3,6 +3,11 @@ import crypto from 'crypto'
 import { db } from './db'
 
 const RESET_TOKEN_EXPIRY_HOURS = 1
+const EMAIL_VERIFY_EXPIRY_HOURS = 48
+
+export function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase()
+}
 
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 10)
@@ -18,8 +23,10 @@ export async function createUser(
   name: string,
   role: string = 'CLIENT'
 ) {
+  const em = normalizeEmail(email)
+
   const existingUser = await db.user.findUnique({
-    where: { email },
+    where: { email: em },
   })
 
   if (existingUser) {
@@ -27,22 +34,30 @@ export async function createUser(
   }
 
   const passwordHash = await hashPassword(password)
+  const isPortalClient = role === 'CLIENT' || role === 'FAMILY'
+  const verifyExpires = new Date()
+  verifyExpires.setHours(verifyExpires.getHours() + EMAIL_VERIFY_EXPIRY_HOURS)
+  const emailVerificationToken = isPortalClient ? createPasswordResetToken() : null
 
   const user = await db.user.create({
     data: {
-      email,
+      email: em,
       passwordHash,
       name,
       role,
+      hasPaidAccess: !isPortalClient,
+      emailVerified: isPortalClient ? null : new Date(),
+      emailVerificationToken,
+      emailVerificationExpires: isPortalClient ? verifyExpires : null,
     },
   })
 
-  return user
+  return { user, emailVerificationToken }
 }
 
 export async function authenticateUser(email: string, password: string) {
   const user = await db.user.findUnique({
-    where: { email },
+    where: { email: normalizeEmail(email) },
   })
 
   if (!user || !user.passwordHash) {
@@ -66,7 +81,7 @@ export function createPasswordResetToken(): string {
 
 export async function setPasswordResetToken(email: string): Promise<string | null> {
   const user = await db.user.findUnique({
-    where: { email },
+    where: { email: normalizeEmail(email) },
   })
   if (!user) return null
 
@@ -108,4 +123,25 @@ export async function updatePasswordWithToken(token: string, newPassword: string
     },
   })
   return user
+}
+
+export async function verifyEmailWithToken(token: string): Promise<boolean> {
+  if (!token || token.length < 10) return false
+  const user = await db.user.findFirst({
+    where: {
+      emailVerificationToken: token,
+      emailVerificationExpires: { gt: new Date() },
+    },
+  })
+  if (!user) return false
+
+  await db.user.update({
+    where: { id: user.id },
+    data: {
+      emailVerified: new Date(),
+      emailVerificationToken: null,
+      emailVerificationExpires: null,
+    },
+  })
+  return true
 }

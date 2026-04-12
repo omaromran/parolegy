@@ -18,6 +18,9 @@ export function Header() {
           <span className="font-serif text-2xl font-bold">parolegy</span>
         </Link>
         <nav className="hidden md:flex items-center space-x-6">
+          <Link href="/pricing" className="text-sm font-medium hover:text-primary transition-colors">
+            Pricing
+          </Link>
           <Link href="/about" className="text-sm font-medium hover:text-primary transition-colors">
             About
           </Link>
@@ -26,6 +29,9 @@ export function Header() {
           </Link>
           <Link href="/resources" className="text-sm font-medium hover:text-primary transition-colors">
             Resources
+          </Link>
+          <Link href="/faq" className="text-sm font-medium hover:text-primary transition-colors">
+            FAQ
           </Link>
         </nav>
         <div className="flex items-center gap-3 sm:gap-4">

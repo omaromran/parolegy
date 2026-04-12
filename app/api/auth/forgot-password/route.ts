@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { setPasswordResetToken } from '@/lib/auth'
+import { normalizeEmail, setPasswordResetToken } from '@/lib/auth'
+import { getAppUrl } from '@/lib/app-url'
+import { sendPasswordResetEmail } from '@/lib/email'
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,24 +15,34 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const token = await setPasswordResetToken(email.trim().toLowerCase())
+    const token = await setPasswordResetToken(email)
+    const base = getAppUrl(request.nextUrl.origin)
 
-    // Always return success to avoid leaking whether the email exists
-    const baseUrl = process.env.NEXTAUTH_URL || request.nextUrl.origin
-    const resetUrl = `${baseUrl}/reset-password?token=${token}`
+    if (token) {
+      const em = normalizeEmail(email)
+      const resetUrl = `${base}/reset-password?token=${encodeURIComponent(token)}`
+      sendPasswordResetEmail({ to: em, resetUrl }).catch((err) =>
+        console.error('Password reset email failed:', err)
+      )
+    }
 
-    // In development, include the link so you can test without email (optional)
     const isDev = process.env.NODE_ENV === 'development'
     return NextResponse.json({
       success: true,
-      message: 'If an account exists with that email, you will receive a password reset link.',
-      ...(isDev && token && { resetUrl }),
+      message:
+        'If an account exists with that email, you will receive a password reset link.',
+      ...(isDev && token && { resetUrl: `${base}/reset-password?token=${encodeURIComponent(token)}` }),
     })
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Something went wrong. Please try again.'
     console.error('Forgot password error:', error)
     return NextResponse.json(
-      { error: process.env.NODE_ENV === 'development' ? message : 'Something went wrong. Please try again.' },
+      {
+        error:
+          process.env.NODE_ENV === 'development'
+            ? message
+            : 'Something went wrong. Please try again.',
+      },
       { status: 500 }
     )
   }

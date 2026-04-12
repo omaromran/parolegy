@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation"
 export default function ChooseTierRedirectPage() {
   const router = useRouter()
   useEffect(() => {
-    router.replace("/dashboard")
+    router.replace("/onboarding")
   }, [router])
   return (
     <div className="min-h-screen flex items-center justify-center">

@@ -1,5 +1,9 @@
 import { openai, DEFAULT_MODEL } from './openai'
-import { buildParoleNarrativePrompt, type ClientIdentityForNarrative } from './prompts'
+import {
+  buildParoleNarrativePrompt,
+  type ClientIdentityForNarrative,
+  type SupportLetterExcerptForPrompt,
+} from './prompts'
 import type { ParoleCampaignNarrative } from '@/lib/parole-narrative'
 import type { ParoleStructureSection } from '@/lib/knowledge-hub'
 
@@ -24,7 +28,8 @@ export async function generateParoleCampaignNarrative(
   documents: { id: string; type: string; fileName: string }[],
   structureSections: ParoleStructureSection[],
   llmGuidelinesText: string,
-  clientIdentity?: ClientIdentityForNarrative
+  clientIdentity?: ClientIdentityForNarrative,
+  supportLetters: SupportLetterExcerptForPrompt[] = []
 ): Promise<ParoleCampaignNarrative> {
   if (!openai) {
     throw new Error('OpenAI API key is not configured. Please set OPENAI_API_KEY environment variable.')
@@ -38,7 +43,8 @@ export async function generateParoleCampaignNarrative(
     documents,
     structureSections,
     llmGuidelinesText,
-    clientIdentity
+    clientIdentity,
+    supportLetters
   )
 
   const response = await openai.chat.completions.create({
@@ -47,7 +53,7 @@ export async function generateParoleCampaignNarrative(
       {
         role: 'system',
         content:
-          'You output one JSON object only. Each narrative section must follow the Knowledge Hub PAROLE_STRUCTURE instructions for that section slug; those instructions override generic tone when they conflict. Use the provided client name when staff instructions require naming. Never invent facts.',
+          'You output one JSON object only. Each narrative section must follow the Knowledge Hub PAROLE_STRUCTURE instructions for that section slug and the LLM_GUIDELINES when they do not conflict; staff instructions per section override generic tone. Ground supporter details and quotes in SUPPORT LETTER TEXT and/or assessment; never invent letter content. Use the provided client name when staff instructions require naming. Never invent facts.',
       },
       { role: 'user', content: userContent },
     ],

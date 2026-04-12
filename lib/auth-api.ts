@@ -14,7 +14,15 @@ export async function getCurrentUser(request: NextRequest) {
     const userId = payload.userId as string
     const user = await db.user.findUnique({
       where: { id: userId },
-      select: { id: true, email: true, name: true, role: true },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        hasPaidAccess: true,
+        emailVerified: true,
+        consultationBookedAt: true,
+      },
     })
     return user
   } catch {

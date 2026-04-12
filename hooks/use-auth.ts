@@ -8,6 +8,10 @@ interface User {
   email: string
   name: string | null
   role: string
+  language?: string
+  hasPaidAccess?: boolean
+  emailVerified?: boolean
+  consultationBookedAt?: string | null
 }
 
 export function useAuth() {

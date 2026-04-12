@@ -117,12 +117,20 @@ export type ClientIdentityForNarrative = {
   tdcjNumber: string
 }
 
+export type SupportLetterExcerptForPrompt = {
+  id: string
+  fileName: string
+  text: string
+  extractionNote?: string
+}
+
 export function buildParoleNarrativePrompt(
   assessmentData: unknown,
   documents: { id: string; type: string; fileName: string }[],
   structureSections: { slug: string; title: string; content: string }[],
   llmGuidelinesText: string,
-  clientIdentity?: ClientIdentityForNarrative
+  clientIdentity?: ClientIdentityForNarrative,
+  supportLetters: SupportLetterExcerptForPrompt[] = []
 ): string {
   const n = structureSections.length
   const order = structureSections.map((s) => s.slug).join(', ')
@@ -144,7 +152,20 @@ When any staff instructions above say to use the client's name, refer to them as
       : `=== CLIENT IDENTITY ===
 (No case name was passed; derive the client's name only from assessment data if present, and follow staff instructions on naming.)`
 
+  const letterBlocks =
+    supportLetters.length === 0
+      ? '(No support letter text was provided — use only the assessment and document index.)'
+      : supportLetters
+          .map((s, i) => {
+            const note = s.extractionNote ? ` [Extraction: ${s.extractionNote}]` : ''
+            const body = s.text?.trim() ? s.text : '(No extractable text for this file.)'
+            return `--- Letter ${i + 1} (document id: ${s.id}, file: ${s.fileName})${note} ---\n${body}`
+          })
+          .join('\n\n')
+
   return `You are drafting a Texas parole campaign as plain-text narrative blocks for staff to copy. Write exactly ${n} sections in the fixed order below.
+
+Knowledge hub (mandatory): Every section MUST follow the numbered PAROLE_STRUCTURE "Staff instructions" for that slug and MUST respect the PAROLEGY LLM GUIDELINES below wherever they do not conflict with those staff instructions. Staff instructions win per section when there is a conflict.
 
 Precedence (critical): For each numbered section, the "Staff instructions for this narrative block" for that section override conflicting LLM guidelines and any default "neutral" or analytical phrasing habits. If staff instructions require a naming style, voice, or emphasis, implement that first.
 
@@ -154,10 +175,15 @@ ${sectionBlocks}
 
 ${llmGuidelinesText}
 
-ASSESSMENT DATA (only use facts from here; do not fabricate):
+ASSESSMENT DATA (questionnaire — only use facts from here; do not fabricate):
 ${JSON.stringify(assessmentData, null, 2)}
 
-DOCUMENT INDEX (types and names for reference; cite accurately):
+SUPPORT LETTER TEXT (extracted from uploaded SUPPORT_LETTER files — use together with the assessment):
+Ground supporter names, relationships, quotes, and offers of help in this text and/or the assessment. Do not invent letter content, quotes, or writers not evidenced below. If a letter has no extractable text, do not pretend you read it; you may refer only to the file name and type from the document index.
+
+${letterBlocks}
+
+DOCUMENT INDEX (all uploads: types, names, ids — for reference and citations):
 ${JSON.stringify(documents, null, 2)}
 
 Return a single JSON object with this exact shape:
@@ -168,7 +194,7 @@ Hard requirements:
 - Section order must match slugs exactly: ${order}
 - For each item, set slug and title to match the corresponding numbered section above (same slug and title strings).
 - For each section, content must satisfy every instruction in that section's "Staff instructions" block. Where staff instructions conflict with LLM guidelines, staff instructions win for that section.
-- content must use only assessment/document facts; apply LLM guidelines where they do not conflict with staff instructions.
+- Substantive claims must be grounded in ASSESSMENT DATA and/or SUPPORT LETTER TEXT (and the document index for file references). Apply LLM guidelines where they do not conflict with staff instructions.
 ${name ? `- When staff instructions call for the client's name, use "${name}" (not depersonalizing substitutes unless that section's staff text explicitly allows them).` : ''}
 
 Output only valid JSON, no markdown code fences or commentary.`
