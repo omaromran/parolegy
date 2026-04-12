@@ -198,8 +198,8 @@ function AssessmentPageInner() {
     return () => { cancelled = true }
   }, [caseId])
 
-  const handleInputChange = (questionId: string, value: any) => {
-    setResponses({ ...responses, [questionId]: value })
+  const handleInputChange = (questionId: string, value: unknown) => {
+    setResponses((prev) => ({ ...prev, [questionId]: value }))
   }
 
   const handlePrefillTestData = () => {
@@ -376,6 +376,11 @@ function AssessmentPageInner() {
               <Button
                 onClick={handleComplete}
                 disabled={isLastSection ? !canComplete : false}
+                title={
+                  isLastSection && !canComplete
+                    ? "Required fields must be filled on every section. Use Previous to review."
+                    : undefined
+                }
               >
                 {isLastSection ? "Complete" : "Next"}
               </Button>
