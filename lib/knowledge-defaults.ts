@@ -83,6 +83,50 @@ Where helpful, organize fears (and how the campaign responds) by category of con
   },
   {
     category: 'LLM_GUIDELINES',
+    slug: 'narrative-by-offense-type',
+    title: 'Narrative by offense type (tone, emphasis, and framing)',
+    sortOrder: 14,
+    content: `You must modulate the **entire** parole campaign narrative based on the **primary offense context** reflected in the assessment and support materials. Use only what those sources support—never invent charges, victims, legal outcomes, or severity.
+
+**How to classify (inference rules)**
+- Read offense-related fields and answers (e.g. offense_details, prior_offenses, remorse, programming, supervision context) and any support-letter references to the conduct. Choose the single **dominant** framing that best matches the described conduct.
+- If multiple serious categories apply, synthesize: address the **highest-concern** category first for accountability and safety language, then incorporate secondary themes without minimizing the primary harm.
+- If the text is genuinely ambiguous, use neutral, discipline-focused framing (accountability, stability, verifiable plan) and **do not** guess a specific offense label.
+
+**Violent or person-oriented offenses** (assault, robbery with contact, domestic violence, etc. **as described in the file**)
+- Lead with clear accountability for harm and fear; never shift blame to victims or circumstances.
+- Emphasize insight, de-escalation, anger or emotion regulation, programming completed or ongoing, and **safety planning** (triggers, avoiding high-risk people/places) only when supported by facts.
+- Tie concrete supervision, treatment, and family/support roles to stability and compliance.
+
+**Sex-related offenses** (only if the assessment or letters support this category)
+- Use dignified, non-graphic language; do not add detail beyond what the sources support.
+- Emphasize treatment engagement, accountability, boundary-consistent living, and **condition-driven** compliance. Never minimize harm or privacy impact.
+
+**Drug offenses** (possession, delivery, trafficking **as described**)
+- Center criminogenic needs tied to the record: substance use history, treatment, relapse prevention, pro-social alternatives, employment and housing stability linked to recovery where facts allow.
+- Avoid normalizing drug commerce; if distribution is evidenced, pair accountability with a credible lawful path forward.
+
+**Property, theft, fraud, burglary without person injury** (**as described**)
+- Stress accountability for loss and trust; reference restitution or amends-oriented thinking **only** if the assessment or letters mention it.
+- Tie the plan to lawful income, structured environment, and reduced opportunity for repeat conduct—without fabricating programs or employers.
+
+**DWI / intoxication-related** (vehicular or repeated impairment patterns **in the file**)
+- Put public safety and impaired decision-making accountability first; align treatment or substance plan with stated facts.
+- Address transportation and how obligations will be met after release **only** with assessment-supported detail—do not invent license status or vehicle arrangements.
+
+**White-collar or fraud** (if the assessment indicates)
+- Emphasize integrity, transparency with supervision, and a lawful employment path; avoid legal conclusions not evidenced in the file.
+
+**Dated or youthful priors with emphasis on current stability**
+- Acknowledge history briefly; stress verifiable present behavior (work, family, programming) **only** with supporting facts—do not erase the record.
+
+**Ambiguous or "other" offense picture**
+- Default to: clear accountability, no minimization, concrete reentry plan, and alignment with every PAROLE_STRUCTURE section—without labeling an offense type the file does not support.
+
+Cross-cutting: All categories still require truthfulness, respect for victims and communities, a concrete plan, and obedience to each section's staff instructions.`,
+  },
+  {
+    category: 'LLM_GUIDELINES',
     slug: 'how-they-read-a-file',
     title: 'How they read a file',
     sortOrder: 15,

@@ -1,8 +1,5 @@
-import path from 'path'
-import { readFile } from 'fs/promises'
 import { openai, DEFAULT_MODEL } from '@/lib/ai/openai'
-
-const UPLOADS_DIR = path.join(process.cwd(), 'uploads')
+import { readUploadedDocument } from '@/lib/document-storage'
 
 const MAX_CHARS_PER_LETTER = 18_000
 const MAX_TOTAL_LETTER_CHARS = 96_000
@@ -22,10 +19,6 @@ type DocFields = {
   storageKey: string
   mimeType: string
   type: string
-}
-
-function localFilePath(doc: Pick<DocFields, 'caseId' | 'storageKey'>): string {
-  return path.join(UPLOADS_DIR, doc.caseId, path.basename(doc.storageKey))
 }
 
 function clampLetter(text: string): string {
@@ -97,7 +90,7 @@ export async function extractSupportLetterTexts(
     let note: string | undefined
 
     try {
-      const buf = await readFile(localFilePath(doc))
+      const buf = await readUploadedDocument(doc.caseId, doc.storageKey)
       const mime = (doc.mimeType || '').toLowerCase()
       const lowerName = doc.fileName.toLowerCase()
 

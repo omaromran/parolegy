@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireRole } from '@/lib/middleware'
 import { db } from '@/lib/db'
-import { ensureKnowledgeDefaults, migrateKnowledgeHubMergeFearsByCategory } from '@/lib/knowledge-hub'
+import {
+  ensureKnowledgeDefaults,
+  migrateKnowledgeHubMergeFearsByCategory,
+  ensureNarrativeByOffenseTypeGuideline,
+} from '@/lib/knowledge-hub'
 
 export const GET = requireRole(['ADMIN', 'STAFF'])(async () => {
   try {
     await ensureKnowledgeDefaults()
     await migrateKnowledgeHubMergeFearsByCategory()
+    await ensureNarrativeByOffenseTypeGuideline()
     const entries = await db.knowledgeHubEntry.findMany({
       orderBy: [{ category: 'asc' }, { sortOrder: 'asc' }],
     })

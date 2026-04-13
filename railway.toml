@@ -1,0 +1,10 @@
+# Persistent uploads (no AWS):
+# 1. Railway dashboard → your web service → Settings → Volumes → Add volume
+# 2. Mount path:  /app/uploads
+# 3. Variables → New variable:  UPLOADS_DIR=/app/uploads
+# 4. Redeploy the service
+#
+# The app reads UPLOADS_DIR in lib/document-storage.ts (default: ./uploads in cwd).
+
+[build]
+builder = "nixpacks"

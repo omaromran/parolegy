@@ -175,6 +175,9 @@ ${sectionBlocks}
 
 ${llmGuidelinesText}
 
+=== OFFENSE-TYPE NARRATIVE MODULATION (mandatory) ===
+In the PAROLEGY LLM GUIDELINES block above, locate the guideline on **narrative by offense type** (tone, emphasis, and framing). Infer the best-matching offense category **only** from ASSESSMENT DATA and SUPPORT LETTER TEXT (e.g. offense_details, prior_offenses, remorse, programming—never invent charges, victims, or legal outcomes). Apply that guideline consistently across **every** JSON narrative section and slug in order: tone, risk framing, what to emphasize, and plan priorities must align with the inferred category while staying evidence-based. If several categories partially apply, blend them without contradicting facts; if the record is unclear, follow that guideline’s ambiguous/other instructions and keep claims conservative. This works **with** each section’s PAROLE_STRUCTURE staff instructions: do not let offense-type framing override required voice (e.g. first person in the letter) or force facts not in the file.
+
 ASSESSMENT DATA (questionnaire — only use facts from here; do not fabricate):
 ${JSON.stringify(assessmentData, null, 2)}
 
@@ -194,7 +197,7 @@ Hard requirements:
 - Section order must match slugs exactly: ${order}
 - For each item, set slug and title to match the corresponding numbered section above (same slug and title strings).
 - For each section, content must satisfy every instruction in that section's "Staff instructions" block. Where staff instructions conflict with LLM guidelines, staff instructions win for that section.
-- Substantive claims must be grounded in ASSESSMENT DATA and/or SUPPORT LETTER TEXT (and the document index for file references). Apply LLM guidelines where they do not conflict with staff instructions.
+- Substantive claims must be grounded in ASSESSMENT DATA and/or SUPPORT LETTER TEXT (and the document index for file references). Apply LLM guidelines where they do not conflict with staff instructions, including offense-type narrative modulation across all sections when supported by those sources.
 ${name ? `- When staff instructions call for the client's name, use "${name}" (not depersonalizing substitutes unless that section's staff text explicitly allows them).` : ''}
 
 Output only valid JSON, no markdown code fences or commentary.`

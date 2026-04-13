@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth-api'
 import { db } from '@/lib/db'
-import { readFile } from 'fs/promises'
-import path from 'path'
+import { readUploadedDocument, usesObjectStorage } from '@/lib/document-storage'
 
-const UPLOADS_DIR = path.join(process.cwd(), 'uploads')
+export const runtime = 'nodejs'
 
 export async function GET(
   request: NextRequest,
@@ -36,17 +35,21 @@ export async function GET(
     return NextResponse.json({ error: 'Document not found' }, { status: 404 })
   }
 
-  const filePath = path.join(UPLOADS_DIR, doc.caseId, path.basename(doc.storageKey))
   try {
-    const buf = await readFile(filePath)
-    return new NextResponse(buf, {
+    const buf = await readUploadedDocument(doc.caseId, doc.storageKey)
+    return new NextResponse(new Uint8Array(buf), {
       headers: {
         'Content-Type': doc.mimeType || 'application/octet-stream',
         'Content-Disposition': `inline; filename="${encodeURIComponent(doc.fileName)}"`,
       },
     })
   } catch (err) {
-    console.error('Error serving document file:', err)
+    console.error('Error serving document file:', err, {
+      documentId: id,
+      caseId: doc.caseId,
+      storageKey: doc.storageKey,
+      storageMode: usesObjectStorage() ? 's3' : 'local',
+    })
     return NextResponse.json({ error: 'File not found' }, { status: 404 })
   }
 }

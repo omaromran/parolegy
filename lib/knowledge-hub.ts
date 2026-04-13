@@ -67,6 +67,27 @@ export async function migrateKnowledgeHubMergeFearsByCategory(): Promise<void> {
   }
 }
 
+const NARRATIVE_BY_OFFENSE_SLUG = 'narrative-by-offense-type'
+
+/** Inserts the offense-type narrative guideline if missing (existing hubs predate the seed). */
+export async function ensureNarrativeByOffenseTypeGuideline(): Promise<void> {
+  const seed = KNOWLEDGE_DEFAULTS.find((d) => d.slug === NARRATIVE_BY_OFFENSE_SLUG)
+  if (!seed) return
+  const existing = await db.knowledgeHubEntry.findFirst({
+    where: { category: 'LLM_GUIDELINES', slug: NARRATIVE_BY_OFFENSE_SLUG },
+  })
+  if (existing) return
+  await db.knowledgeHubEntry.create({
+    data: {
+      category: seed.category,
+      slug: seed.slug,
+      title: seed.title,
+      content: seed.content,
+      sortOrder: seed.sortOrder,
+    },
+  })
+}
+
 /**
  * Default blueprint targets by slug (seed rows). Custom structure rows fall back to index order
  * in {@link blueprintTargetsByStructureIndex}.
@@ -137,6 +158,7 @@ export function buildBlueprintFieldMappingBlock(
 export async function getKnowledgeContextForPrompt(): Promise<string> {
   await ensureKnowledgeDefaults()
   await migrateKnowledgeHubMergeFearsByCategory()
+  await ensureNarrativeByOffenseTypeGuideline()
   const entries = await db.knowledgeHubEntry.findMany({
     orderBy: [{ category: 'asc' }, { sortOrder: 'asc' }],
   })
@@ -183,6 +205,7 @@ export async function getParoleStructureSections(): Promise<ParoleStructureSecti
 export async function getLlmGuidelinesForPrompt(): Promise<string> {
   await ensureKnowledgeDefaults()
   await migrateKnowledgeHubMergeFearsByCategory()
+  await ensureNarrativeByOffenseTypeGuideline()
   const guidelines = await db.knowledgeHubEntry.findMany({
     where: { category: 'LLM_GUIDELINES' },
     orderBy: { sortOrder: 'asc' },

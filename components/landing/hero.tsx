@@ -42,7 +42,7 @@ export function Hero() {
           </div>
           <div className="mt-12 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <Button size="lg" className="bg-[hsl(38,45%,52%)] text-[hsl(220,18%,8%)] hover:bg-[hsl(38,48%,48%)]" asChild>
-              <Link href="/signup">Let&apos;s put the past behind you</Link>
+              <Link href="/signup">Get Started</Link>
             </Button>
             <Button
               size="lg"

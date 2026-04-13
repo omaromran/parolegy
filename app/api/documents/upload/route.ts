@@ -1,11 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth-api'
 import { db } from '@/lib/db'
-import { writeFile, mkdir } from 'fs/promises'
-import path from 'path'
-
-const UPLOADS_DIR = path.join(process.cwd(), 'uploads')
-
+import { saveUploadedDocument } from '@/lib/document-storage'
 export async function POST(request: NextRequest) {
   const user = await getCurrentUser(request)
   if (!user) {
@@ -39,14 +35,13 @@ export async function POST(request: NextRequest) {
     }
 
     const bytes = Buffer.from(await file.arrayBuffer())
-    const ext = path.extname(file.name) || '.bin'
     const safeName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`
-    const caseDir = path.join(UPLOADS_DIR, caseId)
-    await mkdir(caseDir, { recursive: true })
-    const filePath = path.join(caseDir, safeName)
-    await writeFile(filePath, bytes)
-
-    const storageKey = `uploads/${caseId}/${safeName}`
+    const { storageKey } = await saveUploadedDocument(
+      caseId,
+      safeName,
+      bytes,
+      file.type || 'application/octet-stream'
+    )
 
     const document = await db.document.create({
       data: {
