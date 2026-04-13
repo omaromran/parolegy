@@ -40,7 +40,6 @@ model User {
   cases         Case[]
   messages      Message[]
   auditLogs     AuditLog[]
-  mlLearnings   MlLearning[]
 
   @@index([email])
   @@index([role])
@@ -210,18 +209,15 @@ model SitePageContent {
   updatedAt  DateTime @updatedAt
 }
 
-// User-uploaded before/after pairs for campaign pattern learning (dashboard “Machine learning”).
-// side: BEFORE (client/family intake) | AFTER (published parole campaign materials)
+// Staff-managed before/after pairs for campaign pattern learning (admin “Machine learning”).
+// Global corpus: every generated campaign may use all examples alongside PAROLE_STRUCTURE / LLM guidelines.
+// side: BEFORE (client/family intake) | AFTER (Parolegy parole campaign output)
 model MlLearning {
   id        String   @id @default(cuid())
-  userId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user   User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  files  MlLearningFile[]
-
-  @@index([userId])
+  files MlLearningFile[]
 }
 
 model MlLearningFile {

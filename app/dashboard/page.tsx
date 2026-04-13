@@ -125,9 +125,6 @@ export default function DashboardPage() {
             <Link href="/dashboard" className="text-sm font-medium">
               Dashboard
             </Link>
-            <Link href="/dashboard/machine-learning" className="text-sm font-medium">
-              Machine learning
-            </Link>
             <span className="text-sm text-muted-foreground">
               {user.name || user.email}
             </span>

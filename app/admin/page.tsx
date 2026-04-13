@@ -126,6 +126,9 @@ export default function AdminPage() {
             <Button variant="outline" size="sm" asChild>
               <Link href="/admin/site-content">CMS</Link>
             </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/admin/machine-learning">Machine learning</Link>
+            </Button>
           </div>
         </div>
 

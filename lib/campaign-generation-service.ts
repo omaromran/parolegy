@@ -80,7 +80,6 @@ export async function generateCampaignForCase(caseId: string): Promise<{
   const supportLetters = await extractSupportLetterTexts(caseData.documents)
 
   const mlLearnings = await db.mlLearning.findMany({
-    where: { userId: caseData.userId },
     include: { files: { orderBy: { createdAt: 'asc' } } },
     orderBy: { createdAt: 'asc' },
   })

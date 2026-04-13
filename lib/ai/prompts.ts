@@ -193,7 +193,7 @@ ${
   machineLearningExamplesBlock?.trim()
     ? `
 === PATTERN LIBRARY: PRIOR BEFORE/AFTER EXAMPLES (internal learning — not facts for this case) ===
-The account owner stored these excerpts from other matters: “before” is what the client or family submitted; “after” is the Parolegy parole campaign that was produced. Use them **together with** the numbered PAROLE_STRUCTURE staff instructions and the PAROLEGY LLM GUIDELINES above to learn how intake-style materials map into strong, structured campaign narrative (tone, emphasis, section flow, and framing). Do **not** copy names, dates, offenses, institutions, quotes, or other identifying or case-specific facts from these examples into the output for the **current** case. Every substantive claim about this client must still come only from ASSESSMENT DATA and SUPPORT LETTER TEXT (and the document index for file references).
+Parolegy staff curated these excerpts from prior matters: “before” is what the client or family submitted; “after” is the parole campaign Parolegy produced. Use them **together with** the numbered PAROLE_STRUCTURE staff instructions and the PAROLEGY LLM GUIDELINES above to learn how intake-style materials map into strong, structured campaign narrative (tone, emphasis, section flow, and framing). Do **not** copy names, dates, offenses, institutions, quotes, or other identifying or case-specific facts from these examples into the output for the **current** case. Every substantive claim about this client must still come only from ASSESSMENT DATA and SUPPORT LETTER TEXT (and the document index for file references).
 
 ${machineLearningExamplesBlock.trim()}
 `
