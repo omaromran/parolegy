@@ -1,6 +1,6 @@
-# DOC roster pipeline
+# Incarcerated population database (pipeline)
 
-Daily (or on-demand) job that pulls public Department of Corrections rosters, normalizes rows to a single schema, deduplicates against a local registry, and exports CSV/JSON for mail merge and the Parolegy admin UI.
+Daily (or on-demand) job that pulls public Department of Corrections rosters, normalizes rows to a single schema, deduplicates against a local registry, and exports CSV/JSON for mail merge and the Parolegy admin **Incarcerated population database** page (`/admin/roster`).
 
 ## Quick start
 
@@ -83,4 +83,4 @@ See scraper files for state-specific variables (`TEXAS_*`, `NC_*`, `BOP_*`, `GA_
 
 ## Integration with the Parolegy admin dashboard
 
-After a successful run, files appear under `public/data/roster/` so the app can serve them as static assets. The admin **DOC roster** page (`/admin/roster`) lists available exports and download links via `/api/admin/roster`.
+After a successful run, files appear under `public/data/roster/` so the app can serve them as static assets. The admin **Incarcerated population database** page (`/admin/roster`) lists available exports and download links via `/api/admin/roster`.

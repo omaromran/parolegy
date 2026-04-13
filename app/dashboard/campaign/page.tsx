@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { formatDateShort } from "@/lib/utils"
+import { DashboardBackLink } from "@/components/dashboard/dashboard-back-link"
 
 type CaseSummary = {
   id: string
@@ -92,6 +93,7 @@ export default function CampaignPage() {
       </header>
       <main className="container py-8">
         <div className="max-w-6xl mx-auto">
+          <DashboardBackLink />
           <div className="mb-8">
             <h1 className="font-serif text-3xl font-bold mb-2">Parole campaign</h1>
             <p className="text-muted-foreground max-w-2xl">
@@ -183,6 +185,10 @@ export default function CampaignPage() {
               </CardContent>
             </Card>
           )}
+
+          <div className="mt-10 pt-6 border-t">
+            <DashboardBackLink />
+          </div>
         </div>
       </main>
     </div>

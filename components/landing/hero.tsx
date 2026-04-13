@@ -4,8 +4,17 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Phone } from "lucide-react"
 import { SITE_CONTACT } from "@/lib/site-contact"
+import { SITE_PAGE_DEFAULTS } from "@/lib/site-content-defaults"
 
-export function Hero() {
+const H = SITE_PAGE_DEFAULTS.home as Record<string, string>
+
+function ht(copy: Record<string, string> | undefined, key: string): string {
+  return copy?.[key] ?? H[key] ?? ""
+}
+
+type Props = { copy?: Record<string, string> }
+
+export function Hero({ copy }: Props) {
   return (
     <section
       className="relative overflow-hidden border-b bg-[hsl(220,18%,8%)] text-[hsl(40,20%,96%)]"
@@ -21,28 +30,26 @@ export function Hero() {
       <div className="container relative py-20 md:py-28 lg:py-32">
         <div className="mx-auto max-w-3xl text-center">
           <p className="mb-4 text-xs font-medium uppercase tracking-[0.2em] text-[hsl(40,15%,70%)]">
-            Texas parole campaigns · Founded 2017
+            {ht(copy, "hero_kicker")}
           </p>
           <h1
             id="hero-heading"
             className="font-serif text-4xl font-bold leading-tight tracking-tight sm:text-5xl md:text-6xl lg:text-[3.5rem]"
           >
-            Life as it was meant to be
+            {ht(copy, "hero_title")}
           </h1>
           <div className="mx-auto mt-10 max-w-2xl border-l-2 border-[hsl(38,45%,55%)] pl-6 text-left">
             <blockquote className="font-serif text-lg italic leading-relaxed text-[hsl(40,12%,88%)] md:text-xl">
-              By the time decision-makers evaluate your loved one, the framework is set. There is no
-              ambiguity. The concerns have been met. The transformation has been framed. The premise
-              for their release is relevant, positioned as an inevitability.
+              {ht(copy, "hero_quote")}
             </blockquote>
             <p className="mt-4 text-sm font-medium text-[hsl(40,20%,92%)]">
-              At Parolegy we don&apos;t hope for the best.{" "}
-              <span className="text-[hsl(38,50%,62%)]">We engineer the outcome.</span>
+              {ht(copy, "hero_cta_line_prefix")}{" "}
+              <span className="text-[hsl(38,50%,62%)]">{ht(copy, "hero_cta_line_emphasis")}</span>
             </p>
           </div>
           <div className="mt-12 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <Button size="lg" className="bg-[hsl(38,45%,52%)] text-[hsl(220,18%,8%)] hover:bg-[hsl(38,48%,48%)]" asChild>
-              <Link href="/signup">Get Started</Link>
+              <Link href="/signup">{ht(copy, "hero_btn_start")}</Link>
             </Button>
             <Button
               size="lg"
@@ -61,13 +68,10 @@ export function Hero() {
               className="text-[hsl(40,15%,75%)] hover:bg-white/5 hover:text-white"
               asChild
             >
-              <Link href="/contact">Contact us</Link>
+              <Link href="/contact">{ht(copy, "hero_btn_contact")}</Link>
             </Button>
           </div>
-          <p className="mt-10 text-center text-xs text-[hsl(40,10%,55%)]">
-            Parolegy is not a law firm and does not provide legal advice. Parole is discretionary; no
-            outcome can be guaranteed.
-          </p>
+          <p className="mt-10 text-center text-xs text-[hsl(40,10%,55%)]">{ht(copy, "hero_disclaimer")}</p>
         </div>
       </div>
     </section>

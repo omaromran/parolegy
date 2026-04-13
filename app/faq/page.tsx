@@ -1,9 +1,9 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { Header } from "@/components/landing/header"
-import { Footer } from "@/components/landing/footer"
+import { MarketingChrome } from "@/components/landing/marketing-chrome"
 import { PAROLEGY_FAQ, type FaqBlock } from "@/lib/faq-parolegy"
 import { SITE_CONTACT } from "@/lib/site-contact"
+import { getMergedSiteBlocks } from "@/lib/site-content"
 
 export const metadata: Metadata = {
   title: "FAQ | Parolegy",
@@ -46,29 +46,32 @@ function FaqBlockView({ block }: { block: FaqBlock }) {
   }
 }
 
-export default function FaqPage() {
+export default async function FaqPage() {
+  const b = await getMergedSiteBlocks("faq")
+  const t = (k: string) => b[k] ?? ""
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
+    <MarketingChrome>
       <main className="flex-1">
         <div className="border-b bg-muted/30 py-12 md:py-16">
           <div className="container max-w-3xl">
-            <h1 className="font-serif text-4xl font-bold tracking-tight md:text-5xl">
-              Frequently asked questions
-            </h1>
+            <h1 className="font-serif text-4xl font-bold tracking-tight md:text-5xl">{t("intro_title")}</h1>
             <p className="mt-4 text-muted-foreground">
-              If you cannot find an answer here, call{" "}
-              <a href={`tel:${SITE_CONTACT.phoneTel}`} className="font-medium text-foreground underline-offset-4 hover:underline">
+              {t("intro_sub_before_phone")}{" "}
+              <a
+                href={`tel:${SITE_CONTACT.phoneTel}`}
+                className="font-medium text-foreground underline-offset-4 hover:underline"
+              >
                 {SITE_CONTACT.phoneDisplay}
               </a>{" "}
-              and press 0, or email{" "}
+              {t("intro_sub_between")}{" "}
               <a
                 href={`mailto:${SITE_CONTACT.emailPrimary}`}
                 className="font-medium text-foreground underline-offset-4 hover:underline"
               >
                 {SITE_CONTACT.emailPrimary}
               </a>
-              .
+              {t("intro_sub_after")}
             </p>
           </div>
         </div>
@@ -94,19 +97,18 @@ export default function FaqPage() {
           </div>
 
           <p className="mt-10 text-center text-sm text-muted-foreground">
-            Ready to talk?{" "}
+            {t("footer_ready")}{" "}
             <Link href="/contact" className="font-medium text-foreground underline-offset-4 hover:underline">
-              Contact Parolegy
+              {t("footer_contact")}
             </Link>{" "}
-            or{" "}
+            {t("footer_or")}{" "}
             <Link href="/signup" className="font-medium text-foreground underline-offset-4 hover:underline">
-              create an account
+              {t("footer_signup")}
             </Link>
             .
           </p>
         </div>
       </main>
-      <Footer />
-    </div>
+    </MarketingChrome>
   )
 }

@@ -1,4 +1,7 @@
 import { PrismaClient } from '@prisma/client'
+import { ensurePostgresDatabaseUrlFromProjectFiles } from '@/lib/ensure-database-url'
+
+ensurePostgresDatabaseUrlFromProjectFiles()
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined

@@ -75,7 +75,7 @@ export default function AdminRosterPage() {
           limit,
           sourceStates: [],
           rows: [],
-          error: "Could not load roster",
+          error: "Could not load population data",
         })
         return
       }
@@ -152,13 +152,13 @@ export default function AdminRosterPage() {
       </header>
       <main className="container py-8 max-w-[1400px]">
         <div className="mb-8">
-          <h1 className="font-serif text-3xl font-bold mb-2">DOC roster</h1>
+          <h1 className="font-serif text-3xl font-bold mb-2">Incarcerated population database</h1>
           <p className="text-muted-foreground max-w-3xl">
-            People from the latest <code className="text-sm bg-muted px-1 rounded">daily_roster_*.json</code>{" "}
-            produced by <code className="text-sm bg-muted px-1 rounded">pipeline/main.py</code>. Filter by
-            prison (facility) and jurisdiction. Row counts depend on which states you run: Texas alone is
-            ~140k+; the whole U.S. is not one download—most state scrapers are still stubs until
-            implemented.
+            Search and filter people from the latest consolidated export (
+            <code className="text-sm bg-muted px-1 rounded">daily_roster_*.json</code>
+            ), built by <code className="text-sm bg-muted px-1 rounded">pipeline/main.py</code>. Filter by
+            facility and state source. Coverage depends on which state scrapers are enabled: Texas alone is
+            ~140k+ rows; most other states are still stubs until implemented.
           </p>
         </div>
 
@@ -177,7 +177,7 @@ export default function AdminRosterPage() {
                   )}
                 </>
               )}
-              {!data?.date && !tableLoading && "No daily roster JSON found yet."}
+              {!data?.date && !tableLoading && "No population export found yet."}
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4 md:flex-row md:flex-wrap md:items-end">
@@ -186,7 +186,7 @@ export default function AdminRosterPage() {
                 Name or ID (contains)
               </label>
               <p className="text-xs text-muted-foreground">
-                Searches the full roster before pagination—use Apply so matches on any page appear here.
+                Searches the full dataset before pagination—use Apply so matches on any page appear here.
               </p>
               <Input
                 id="roster-name"

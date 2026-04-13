@@ -1,22 +1,21 @@
 import Link from "next/link"
 import { SITE_CONTACT } from "@/lib/site-contact"
+import { SITE_PAGE_DEFAULTS } from "@/lib/site-content-defaults"
 
-const languages = [
-  "English", "Spanish", "French", "Hindi", "Urdu", "Arabic", "Vietnamese",
-  "Chinese", "Portuguese", "Tagalog", "Korean", "Igbo", "Twi", "Yoruba",
-]
+const L = SITE_PAGE_DEFAULTS.layout as Record<string, string>
 
-export function Footer() {
+function lt(layout: Record<string, string> | undefined, key: string): string {
+  return layout?.[key] ?? L[key] ?? ""
+}
+
+export function Footer({ layoutCopy }: { layoutCopy?: Record<string, string> }) {
   return (
     <footer className="border-t bg-muted/50">
       <div className="container py-12">
         <div className="grid md:grid-cols-4 gap-8">
           <div>
-            <h3 className="font-serif text-xl font-bold mb-4">Parolegy</h3>
-            <p className="text-sm text-muted-foreground">
-              Founded 2017. Parole campaign preparation for Texas families—focused, documented, and
-              aligned with how review actually works.
-            </p>
+            <h3 className="font-serif text-xl font-bold mb-4">{lt(layoutCopy, "footer_brand_heading")}</h3>
+            <p className="text-sm text-muted-foreground">{lt(layoutCopy, "footer_tagline")}</p>
             <p className="mt-4 text-sm text-muted-foreground">
               <a href={`tel:${SITE_CONTACT.phoneTel}`} className="hover:text-primary">
                 {SITE_CONTACT.phoneDisplay}
@@ -31,70 +30,66 @@ export function Footer() {
             </p>
           </div>
           <div>
-            <h4 className="font-semibold mb-4">Company</h4>
+            <h4 className="font-semibold mb-4">{lt(layoutCopy, "footer_col_company")}</h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link href="/pricing" className="text-muted-foreground hover:text-primary">
-                  Pricing
+                  {lt(layoutCopy, "footer_link_pricing")}
                 </Link>
               </li>
               <li>
                 <Link href="/about" className="text-muted-foreground hover:text-primary">
-                  About
+                  {lt(layoutCopy, "footer_link_about")}
                 </Link>
               </li>
               <li>
                 <Link href="/testimonials" className="text-muted-foreground hover:text-primary">
-                  Testimonials
+                  {lt(layoutCopy, "footer_link_testimonials")}
                 </Link>
               </li>
               <li>
                 <Link href="/resources" className="text-muted-foreground hover:text-primary">
-                  Resources
+                  {lt(layoutCopy, "footer_link_resources")}
                 </Link>
               </li>
               <li>
                 <Link href="/contact" className="text-muted-foreground hover:text-primary">
-                  Contact
+                  {lt(layoutCopy, "footer_link_contact")}
                 </Link>
               </li>
               <li>
                 <Link href="/faq" className="text-muted-foreground hover:text-primary">
-                  FAQ
+                  {lt(layoutCopy, "footer_link_faq")}
                 </Link>
               </li>
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold mb-4">Legal</h4>
+            <h4 className="font-semibold mb-4">{lt(layoutCopy, "footer_col_legal")}</h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link href="/privacy" className="text-muted-foreground hover:text-primary">
-                  Privacy Policy
+                  {lt(layoutCopy, "footer_link_privacy")}
                 </Link>
               </li>
               <li>
                 <Link href="/terms" className="text-muted-foreground hover:text-primary">
-                  Terms of Service
+                  {lt(layoutCopy, "footer_link_terms")}
                 </Link>
               </li>
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold mb-4">Languages</h4>
-            <p className="text-sm text-muted-foreground mb-2">
-              Available in:
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {languages.join(", ")}
-            </p>
+            <h4 className="font-semibold mb-4">{lt(layoutCopy, "footer_col_languages")}</h4>
+            <p className="text-sm text-muted-foreground mb-2">{lt(layoutCopy, "footer_languages_intro")}</p>
+            <p className="text-xs text-muted-foreground">{lt(layoutCopy, "footer_languages_list")}</p>
           </div>
         </div>
         <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} Parolegy. All rights reserved.</p>
-          <p className="mt-2">
-            Parolegy is not a law firm and does not provide legal advice. Parole is discretionary, and results are not guaranteed.
+          <p>
+            © {new Date().getFullYear()} {lt(layoutCopy, "footer_copyright_suffix")}
           </p>
+          <p className="mt-2">{lt(layoutCopy, "footer_disclaimer")}</p>
         </div>
       </div>
     </footer>

@@ -65,11 +65,16 @@ export default function DashboardCampaignBookletPage() {
 
   if (error || !campaign) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-neutral-200">
-        <p className="text-muted-foreground">{error || "Not found"}</p>
-        <Button asChild>
-          <Link href="/dashboard/campaign">Back to parole campaign</Link>
-        </Button>
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-neutral-200 px-4">
+        <p className="text-muted-foreground text-center">{error || "Not found"}</p>
+        <div className="flex flex-wrap justify-center gap-2">
+          <Button variant="outline" asChild>
+            <Link href="/dashboard">Back to dashboard</Link>
+          </Button>
+          <Button asChild>
+            <Link href="/dashboard/campaign">Parole campaign</Link>
+          </Button>
+        </div>
       </div>
     )
   }
@@ -84,6 +89,9 @@ export default function DashboardCampaignBookletPage() {
       documents={documents}
       documentHref={(docId) => `/api/documents/${docId}/file`}
       backHref="/dashboard/campaign"
+      backLabel="← Parole campaign"
+      dashboardHref="/dashboard"
+      dashboardLabel="Dashboard"
       toolbarTitle="Your parole campaign booklet"
     />
   )

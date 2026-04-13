@@ -42,6 +42,11 @@ type CaseWithAssessment = {
   hasCampaigns?: boolean
 }
 
+function totalDocumentCount(counts: Record<string, number> | undefined): number {
+  if (!counts) return 0
+  return Object.values(counts).reduce((a, n) => a + n, 0)
+}
+
 export default function DashboardPage() {
   const router = useRouter()
   const { toast } = useToast()
@@ -119,6 +124,9 @@ export default function DashboardPage() {
           <nav className="flex items-center gap-4">
             <Link href="/dashboard" className="text-sm font-medium">
               Dashboard
+            </Link>
+            <Link href="/dashboard/machine-learning" className="text-sm font-medium">
+              Machine learning
             </Link>
             <span className="text-sm text-muted-foreground">
               {user.name || user.email}
@@ -198,7 +206,11 @@ export default function DashboardPage() {
                         </Button>
                       )}
                       <Button asChild variant="outline" size="sm">
-                        <Link href="/dashboard/uploads">Upload documents</Link>
+                        <Link href="/dashboard/uploads">
+                          {totalDocumentCount(c.documentCounts) >= 1
+                            ? "Modify Documents"
+                            : "Upload documents"}
+                        </Link>
                       </Button>
                       {c.hasCampaigns && (
                         <Button asChild size="sm" variant="outline">
@@ -265,7 +277,7 @@ export default function DashboardPage() {
                   <span className={hasCampaign ? "text-green-500" : "text-gray-400"}>
                     {hasCampaign ? "✓" : "○"}
                   </span>
-                  <span className="text-sm">Campaign published to you by staff</span>
+                  <span className="text-sm">Received Parole Campaign from Parolegy Team</span>
                 </li>
               </ul>
             </CardContent>

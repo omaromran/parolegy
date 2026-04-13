@@ -1,65 +1,52 @@
-import { Header } from "@/components/landing/header"
-import { Footer } from "@/components/landing/footer"
+import { MarketingChrome } from "@/components/landing/marketing-chrome"
 import { Card, CardContent } from "@/components/ui/card"
+import { getMergedSiteBlocks } from "@/lib/site-content"
 
-export default function TermsPage() {
+export default async function TermsPage() {
+  const b = await getMergedSiteBlocks("terms")
+  const t = (k: string) => b[k] ?? ""
+  const s3Items = [t("s3_li_0"), t("s3_li_1"), t("s3_li_2"), t("s3_li_3")]
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
+    <MarketingChrome>
       <main className="flex-1 container py-16 md:py-24">
         <div className="max-w-4xl mx-auto">
-          <h1 className="font-serif text-4xl md:text-5xl font-bold mb-8">
-            Terms of Service
-          </h1>
+          <h1 className="font-serif text-4xl md:text-5xl font-bold mb-8">{t("title")}</h1>
           <Card className="p-8">
             <div className="prose prose-lg max-w-none space-y-6">
               <section>
-                <h2 className="font-serif text-2xl font-bold mb-4">Acceptance of Terms</h2>
-                <p className="text-muted-foreground">
-                  By using Parolegy, you agree to be bound by these Terms of Service. If you do not agree, please do not use our services.
-                </p>
+                <h2 className="font-serif text-2xl font-bold mb-4">{t("s1_h")}</h2>
+                <p className="text-muted-foreground">{t("s1_p")}</p>
               </section>
               <section>
-                <h2 className="font-serif text-2xl font-bold mb-4">Service Description</h2>
-                <p className="text-muted-foreground">
-                  Parolegy provides tools and services to help create parole campaign materials. We are not a law firm and do not provide legal advice.
-                </p>
+                <h2 className="font-serif text-2xl font-bold mb-4">{t("s2_h")}</h2>
+                <p className="text-muted-foreground">{t("s2_p")}</p>
               </section>
               <section>
-                <h2 className="font-serif text-2xl font-bold mb-4">User Responsibilities</h2>
-                <p className="text-muted-foreground">
-                  You are responsible for:
-                </p>
+                <h2 className="font-serif text-2xl font-bold mb-4">{t("s3_h")}</h2>
+                <p className="text-muted-foreground">{t("s3_p")}</p>
                 <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
-                  <li>Providing accurate and truthful information</li>
-                  <li>Not fabricating facts, credentials, or certificates</li>
-                  <li>Obtaining consent before uploading third-party materials</li>
-                  <li>Complying with all applicable laws and regulations</li>
+                  {s3Items.map((line) => (
+                    <li key={line}>{line}</li>
+                  ))}
                 </ul>
               </section>
               <section>
-                <h2 className="font-serif text-2xl font-bold mb-4">No Guarantees</h2>
-                <p className="text-muted-foreground">
-                  Parole is discretionary, and results are not guaranteed. Parolegy does not guarantee parole approval or any specific outcome.
-                </p>
+                <h2 className="font-serif text-2xl font-bold mb-4">{t("s4_h")}</h2>
+                <p className="text-muted-foreground">{t("s4_p")}</p>
               </section>
               <section>
-                <h2 className="font-serif text-2xl font-bold mb-4">Limitation of Liability</h2>
-                <p className="text-muted-foreground">
-                  Parolegy shall not be liable for any indirect, incidental, special, or consequential damages arising from use of our services.
-                </p>
+                <h2 className="font-serif text-2xl font-bold mb-4">{t("s5_h")}</h2>
+                <p className="text-muted-foreground">{t("s5_p")}</p>
               </section>
               <section>
-                <h2 className="font-serif text-2xl font-bold mb-4">Contact Us</h2>
-                <p className="text-muted-foreground">
-                  If you have questions about these Terms, please contact us at ebonie@parolegy.com
-                </p>
+                <h2 className="font-serif text-2xl font-bold mb-4">{t("s6_h")}</h2>
+                <p className="text-muted-foreground">{t("s6_p")}</p>
               </section>
             </div>
           </Card>
         </div>
       </main>
-      <Footer />
-    </div>
+    </MarketingChrome>
   )
 }

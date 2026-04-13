@@ -29,7 +29,8 @@ export async function generateParoleCampaignNarrative(
   structureSections: ParoleStructureSection[],
   llmGuidelinesText: string,
   clientIdentity?: ClientIdentityForNarrative,
-  supportLetters: SupportLetterExcerptForPrompt[] = []
+  supportLetters: SupportLetterExcerptForPrompt[] = [],
+  machineLearningExamplesBlock?: string
 ): Promise<ParoleCampaignNarrative> {
   if (!openai) {
     throw new Error('OpenAI API key is not configured. Please set OPENAI_API_KEY environment variable.')
@@ -44,8 +45,13 @@ export async function generateParoleCampaignNarrative(
     structureSections,
     llmGuidelinesText,
     clientIdentity,
-    supportLetters
+    supportLetters,
+    machineLearningExamplesBlock
   )
+
+  const mlSys =
+    machineLearningExamplesBlock?.trim() &&
+    ' When a pattern library of prior before/after examples is included in the user message, use it only as structural and stylistic guidance alongside PAROLE_STRUCTURE and LLM_GUIDELINES—never copy private or case-specific facts from those examples into the current case.'
 
   const response = await openai.chat.completions.create({
     model: DEFAULT_MODEL,
@@ -53,7 +59,8 @@ export async function generateParoleCampaignNarrative(
       {
         role: 'system',
         content:
-          'You output one JSON object only. Each narrative section must follow the Knowledge Hub PAROLE_STRUCTURE instructions for that section slug and the LLM_GUIDELINES when they do not conflict; staff instructions per section override generic tone. Modulate tone, emphasis, and risk framing by offense type per the hub’s offense-type guideline, inferred only from assessment and support letters—consistently across all sections, without inventing charges or facts. Ground supporter details and quotes in SUPPORT LETTER TEXT and/or assessment; never invent letter content. Use the provided client name when staff instructions require naming. Never invent facts.',
+          'You output one JSON object only. Each narrative section must follow the Knowledge Hub PAROLE_STRUCTURE instructions for that section slug and the LLM_GUIDELINES when they do not conflict; staff instructions per section override generic tone. Modulate tone, emphasis, and risk framing by offense type per the hub’s offense-type guideline, inferred only from assessment and support letters—consistently across all sections, without inventing charges or facts. Ground supporter details and quotes in SUPPORT LETTER TEXT and/or assessment; never invent letter content. Use the provided client name when staff instructions require naming. Never invent facts.' +
+          (mlSys || ''),
       },
       { role: 'user', content: userContent },
     ],

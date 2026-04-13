@@ -4,22 +4,21 @@ import { HowParoleWorks } from "@/components/landing/how-parole-works"
 import { SuccessRate } from "@/components/landing/success-rate"
 import { Testimonials } from "@/components/landing/testimonials"
 import { ContactStrip } from "@/components/landing/contact-strip"
-import { Footer } from "@/components/landing/footer"
-import { Header } from "@/components/landing/header"
+import { MarketingChrome } from "@/components/landing/marketing-chrome"
+import { getMergedSiteBlocks } from "@/lib/site-content"
 
-export default function HomePage() {
+export default async function HomePage() {
+  const home = await getMergedSiteBlocks("home")
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
+    <MarketingChrome>
       <main className="flex-1">
-        <Hero />
-        <Approach />
-        <HowParoleWorks />
-        <SuccessRate />
-        <Testimonials />
-        <ContactStrip />
+        <Hero copy={home} />
+        <Approach copy={home} />
+        <HowParoleWorks copy={home} />
+        <SuccessRate copy={home} />
+        <Testimonials copy={home} />
+        <ContactStrip copy={home} />
       </main>
-      <Footer />
-    </div>
+    </MarketingChrome>
   )
 }

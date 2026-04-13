@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import Link from "next/link"
 import { useToast } from "@/hooks/use-toast"
+import { DashboardBackLink } from "@/components/dashboard/dashboard-back-link"
 
 // Assessment sections based on the 16-page assessment
 const sections = [
@@ -341,6 +342,7 @@ function AssessmentPageInner() {
       </header>
       <main className="container py-8">
         <div className="max-w-4xl mx-auto">
+          <DashboardBackLink />
           <div className="mb-8">
             <h1 className="font-serif text-3xl font-bold mb-2">Assessment</h1>
             <p className="text-muted-foreground">
@@ -417,7 +419,7 @@ function AssessmentPageInner() {
             </CardContent>
           </Card>
 
-          <div className="mt-6 flex justify-between">
+          <div className="mt-6 flex justify-between gap-4 flex-wrap">
             <Button type="button" variant="outline" onClick={handlePrevious} disabled={currentSection === 0}>
               Previous
             </Button>
@@ -429,6 +431,9 @@ function AssessmentPageInner() {
                 {isLastSection ? "Complete" : "Next"}
               </Button>
             </div>
+          </div>
+          <div className="mt-6 pt-6 border-t">
+            <DashboardBackLink />
           </div>
         </div>
       </main>

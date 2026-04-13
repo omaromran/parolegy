@@ -36,6 +36,11 @@ type Props = {
   documents: BookletDocument[]
   documentHref: (id: string) => string
   backHref: string
+  /** e.g. "← Parole campaign" so "Back" is not ambiguous */
+  backLabel?: string
+  /** Optional second link (e.g. main dashboard when backHref is a sub-page). */
+  dashboardHref?: string
+  dashboardLabel?: string
   toolbarTitle?: string
 }
 
@@ -46,6 +51,9 @@ export function ParoleCampaignBooklet({
   documents,
   documentHref,
   backHref,
+  backLabel = "← Back",
+  dashboardHref,
+  dashboardLabel = "Dashboard",
   toolbarTitle = "Parole campaign booklet",
 }: Props) {
   const b = blueprint
@@ -84,8 +92,19 @@ export function ParoleCampaignBooklet({
   return (
     <div className="parole-booklet">
       <div className="parole-booklet__toolbar no-print">
-        <div className="flex flex-wrap items-center gap-3">
-          <a href={backHref}>← Back</a>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <a href={backHref}>{backLabel}</a>
+          {dashboardHref ? (
+            <>
+              <span className="opacity-50" aria-hidden>
+                ·
+              </span>
+              <a href={dashboardHref}>{dashboardLabel}</a>
+            </>
+          ) : null}
+          <span className="hidden sm:inline opacity-40" aria-hidden>
+            ·
+          </span>
           <span>{toolbarTitle}</span>
         </div>
         <button

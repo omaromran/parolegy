@@ -6,7 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import Link from "next/link"
-import { Upload, File as FileIcon, X, Download, ExternalLink, Image as ImageIcon, PenLine } from "lucide-react"
+import { Upload, File as FileIcon, X, Download, ExternalLink, Image as ImageIcon, PenLine, Trash2 } from "lucide-react"
+import { DashboardBackLink } from "@/components/dashboard/dashboard-back-link"
+import { useToast } from "@/hooks/use-toast"
 
 /** Support letters: PDF, images, Word, Excel, CSV (matches server storage; campaign text extraction is best for PDF/images/txt). */
 const SUPPORT_LETTER_ACCEPT = [
@@ -86,6 +88,7 @@ const typeLabels: Record<string, string> = {
 
 export default function UploadsPage() {
   const router = useRouter()
+  const { toast } = useToast()
   const [uploads, setUploads] = useState<Record<string, File[]>>({
     SUPPORT_LETTER: [],
     PHOTO: [],
@@ -103,6 +106,7 @@ export default function UploadsPage() {
   const [documentsLoading, setDocumentsLoading] = useState(false)
   const [supportLetterText, setSupportLetterText] = useState("")
   const [savingWrittenLetter, setSavingWrittenLetter] = useState(false)
+  const [deletingDocId, setDeletingDocId] = useState<string | null>(null)
 
   useEffect(() => {
     fetch("/api/cases")
@@ -174,6 +178,33 @@ export default function UploadsPage() {
       alert(e instanceof Error ? e.message : "Failed to save letter")
     } finally {
       setSavingWrittenLetter(false)
+    }
+  }
+
+  const handleDeleteSavedDocument = async (doc: SavedDocument) => {
+    const ok = window.confirm(
+      `Delete “${doc.fileName}”? This cannot be undone.`
+    )
+    if (!ok) return
+    setDeletingDocId(doc.id)
+    try {
+      const res = await fetch(`/api/documents/${encodeURIComponent(doc.id)}`, {
+        method: "DELETE",
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        throw new Error(typeof data.error === "string" ? data.error : "Failed to delete")
+      }
+      setSavedDocuments((prev) => prev.filter((d) => d.id !== doc.id))
+      toast({ title: "Document removed" })
+    } catch (e) {
+      toast({
+        title: "Could not delete document",
+        description: e instanceof Error ? e.message : "Something went wrong",
+        variant: "destructive",
+      })
+    } finally {
+      setDeletingDocId(null)
     }
   }
 
@@ -271,6 +302,7 @@ export default function UploadsPage() {
       </header>
       <main className="container py-8">
         <div className="max-w-4xl mx-auto">
+          <DashboardBackLink />
           <h1 className="font-serif text-3xl font-bold mb-2">Upload Documents</h1>
           <p className="text-muted-foreground mb-4">
             Upload support letters, photos, certificates, and other documents for your parole campaign.
@@ -337,16 +369,33 @@ export default function UploadsPage() {
                             {typeLabels[d.type] || d.type} · {(d.size / 1024).toFixed(1)} KB
                           </span>
                         </div>
-                        <Button variant="outline" size="sm" asChild>
-                          <a
-                            href={`/api/documents/${d.id}/file`}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                        <div className="flex items-center gap-1 shrink-0">
+                          <Button variant="outline" size="sm" asChild>
+                            <a
+                              href={`/api/documents/${d.id}/file`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <ExternalLink className="mr-1 h-3 w-3" />
+                              Preview
+                            </a>
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            disabled={deletingDocId === d.id}
+                            title="Delete this file"
+                            aria-label={`Delete ${d.fileName}`}
+                            onClick={() => handleDeleteSavedDocument(d)}
                           >
-                            <ExternalLink className="mr-1 h-3 w-3" />
-                            Preview
-                          </a>
-                        </Button>
+                            <Trash2 className="h-3 w-3 sm:mr-1" aria-hidden />
+                            <span className="hidden sm:inline">
+                              {deletingDocId === d.id ? "…" : "Delete"}
+                            </span>
+                          </Button>
+                        </div>
                       </li>
                     ))}
                   </ul>
@@ -467,7 +516,7 @@ export default function UploadsPage() {
 
           <div className="mt-8 flex justify-end gap-4">
             <Button variant="outline" asChild>
-              <Link href="/dashboard">Cancel</Link>
+              <Link href="/dashboard">Back to dashboard</Link>
             </Button>
             <Button
               onClick={handleUpload}
@@ -490,6 +539,10 @@ export default function UploadsPage() {
               </ul>
             </CardContent>
           </Card>
+
+          <div className="mt-10 pt-6 border-t">
+            <DashboardBackLink />
+          </div>
         </div>
       </main>
     </div>

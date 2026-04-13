@@ -4,8 +4,8 @@
  */
 
 import path from 'path'
-import { mkdir, writeFile, readFile } from 'fs/promises'
-import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3'
+import { mkdir, writeFile, readFile, unlink } from 'fs/promises'
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
 
 /** Local disk root for case folders. Override with UPLOADS_DIR (e.g. /app/uploads when a Railway volume is mounted there). */
 export function getLocalUploadsRoot(): string {
@@ -89,4 +89,25 @@ export async function readUploadedDocument(caseId: string, storageKey: string): 
 
   const filePath = path.join(getLocalUploadsRoot(), caseId, path.basename(storageKey))
   return readFile(filePath)
+}
+
+/** Remove stored bytes for a document. Local: ignores missing file (ENOENT). */
+export async function deleteUploadedDocument(caseId: string, storageKey: string): Promise<void> {
+  if (usesObjectStorage()) {
+    await s3Client().send(
+      new DeleteObjectCommand({
+        Bucket: process.env.S3_BUCKET!.trim(),
+        Key: storageKey,
+      })
+    )
+    return
+  }
+
+  const filePath = path.join(getLocalUploadsRoot(), caseId, path.basename(storageKey))
+  try {
+    await unlink(filePath)
+  } catch (e: unknown) {
+    const code = (e as NodeJS.ErrnoException)?.code
+    if (code !== 'ENOENT') throw e
+  }
 }

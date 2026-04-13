@@ -121,7 +121,10 @@ export default function AdminPage() {
               <Link href="/admin/knowledge">Knowledge hub</Link>
             </Button>
             <Button variant="outline" size="sm" asChild>
-              <Link href="/admin/roster">DOC roster pipeline</Link>
+              <Link href="/admin/roster">Incarcerated population database</Link>
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/admin/site-content">CMS</Link>
             </Button>
           </div>
         </div>

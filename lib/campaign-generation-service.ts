@@ -8,6 +8,7 @@ import {
 } from '@/lib/knowledge-hub'
 import type { ParoleCampaignNarrative } from '@/lib/parole-narrative'
 import { extractSupportLetterTexts } from '@/lib/support-letter-extraction'
+import { buildMachineLearningExamplesForPrompt } from '@/lib/ml-learning-extraction'
 
 const REQUIRED_DOCS = { SUPPORT_LETTER: 3, PHOTO: 10 }
 
@@ -78,6 +79,25 @@ export async function generateCampaignForCase(caseId: string): Promise<{
 
   const supportLetters = await extractSupportLetterTexts(caseData.documents)
 
+  const mlLearnings = await db.mlLearning.findMany({
+    where: { userId: caseData.userId },
+    include: { files: { orderBy: { createdAt: 'asc' } } },
+    orderBy: { createdAt: 'asc' },
+  })
+  const machineLearningExamplesBlock = await buildMachineLearningExamplesForPrompt(
+    mlLearnings.map((L) => ({
+      id: L.id,
+      files: L.files.map((f) => ({
+        learningId: f.learningId,
+        fileName: f.fileName,
+        storageKey: f.storageKey,
+        mimeType: f.mimeType,
+        side: f.side,
+        createdAt: f.createdAt,
+      })),
+    }))
+  )
+
   const narrative = await generateParoleCampaignNarrative(
     assessmentPayload,
     docRefs,
@@ -87,7 +107,8 @@ export async function generateCampaignForCase(caseId: string): Promise<{
       clientName: caseData.clientName,
       tdcjNumber: caseData.tdcjNumber,
     },
-    supportLetters
+    supportLetters,
+    machineLearningExamplesBlock || undefined
   )
 
   const blueprint = normalizeBlueprint({})

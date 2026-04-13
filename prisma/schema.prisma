@@ -40,6 +40,7 @@ model User {
   cases         Case[]
   messages      Message[]
   auditLogs     AuditLog[]
+  mlLearnings   MlLearning[]
 
   @@index([email])
   @@index([role])
@@ -198,4 +199,43 @@ model KnowledgeHubEntry {
 
   @@unique([category, slug])
   @@index([category])
+}
+
+// Admin-edited marketing copy: JSON map of block id to string per page slug.
+model SitePageContent {
+  id         String   @id @default(cuid())
+  slug       String   @unique
+  blocksJson String   @default("{}")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// User-uploaded before/after pairs for campaign pattern learning (dashboard “Machine learning”).
+// side: BEFORE (client/family intake) | AFTER (published parole campaign materials)
+model MlLearning {
+  id        String   @id @default(cuid())
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  files  MlLearningFile[]
+
+  @@index([userId])
+}
+
+model MlLearningFile {
+  id         String   @id @default(cuid())
+  learningId String
+  side       String   // BEFORE | AFTER
+  fileName   String
+  storageKey String
+  mimeType   String
+  size       Int
+  uploadedBy String
+  createdAt  DateTime @default(now())
+
+  learning MlLearning @relation(fields: [learningId], references: [id], onDelete: Cascade)
+
+  @@index([learningId])
 }

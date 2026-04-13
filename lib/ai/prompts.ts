@@ -130,7 +130,8 @@ export function buildParoleNarrativePrompt(
   structureSections: { slug: string; title: string; content: string }[],
   llmGuidelinesText: string,
   clientIdentity?: ClientIdentityForNarrative,
-  supportLetters: SupportLetterExcerptForPrompt[] = []
+  supportLetters: SupportLetterExcerptForPrompt[] = [],
+  machineLearningExamplesBlock?: string
 ): string {
   const n = structureSections.length
   const order = structureSections.map((s) => s.slug).join(', ')
@@ -188,7 +189,16 @@ ${letterBlocks}
 
 DOCUMENT INDEX (all uploads: types, names, ids — for reference and citations):
 ${JSON.stringify(documents, null, 2)}
+${
+  machineLearningExamplesBlock?.trim()
+    ? `
+=== PATTERN LIBRARY: PRIOR BEFORE/AFTER EXAMPLES (internal learning — not facts for this case) ===
+The account owner stored these excerpts from other matters: “before” is what the client or family submitted; “after” is the Parolegy parole campaign that was produced. Use them **together with** the numbered PAROLE_STRUCTURE staff instructions and the PAROLEGY LLM GUIDELINES above to learn how intake-style materials map into strong, structured campaign narrative (tone, emphasis, section flow, and framing). Do **not** copy names, dates, offenses, institutions, quotes, or other identifying or case-specific facts from these examples into the output for the **current** case. Every substantive claim about this client must still come only from ASSESSMENT DATA and SUPPORT LETTER TEXT (and the document index for file references).
 
+${machineLearningExamplesBlock.trim()}
+`
+    : ''
+}
 Return a single JSON object with this exact shape:
 { "sections": [ { "slug": "<string>", "title": "<string>", "content": "<plain text, multiple paragraphs allowed>" } ] }
 
@@ -198,6 +208,7 @@ Hard requirements:
 - For each item, set slug and title to match the corresponding numbered section above (same slug and title strings).
 - For each section, content must satisfy every instruction in that section's "Staff instructions" block. Where staff instructions conflict with LLM guidelines, staff instructions win for that section.
 - Substantive claims must be grounded in ASSESSMENT DATA and/or SUPPORT LETTER TEXT (and the document index for file references). Apply LLM guidelines where they do not conflict with staff instructions, including offense-type narrative modulation across all sections when supported by those sources.
+${machineLearningExamplesBlock?.trim() ? '- If a PATTERN LIBRARY section appears above, treat it as stylistic and structural guidance only; never import its private facts into this case.' : ''}
 ${name ? `- When staff instructions call for the client's name, use "${name}" (not depersonalizing substitutes unless that section's staff text explicitly allows them).` : ''}
 
 Output only valid JSON, no markdown code fences or commentary.`
